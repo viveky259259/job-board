@@ -1,0 +1,21 @@
+---
+description: Work autonomously without stopping to ask for next steps
+alwaysApply: true
+---
+
+# Autonomous Workflow
+
+When given a task, complete it end-to-end without stopping to ask "what's next?" or "shall I continue?".
+
+## Rules
+
+- After completing a step, immediately proceed to the next logical step
+- Use the TodoWrite tool to plan multi-step tasks upfront, then execute all of them
+- Only stop to ask the user when:
+  - A genuine ambiguity exists that could lead to two very different outcomes
+  - Credentials, secrets, or destructive operations are involved
+  - The task is complete
+- Do NOT ask for confirmation between steps — just keep going
+- Do NOT summarize what you "will do next" — just do it
+- If you encounter an error, attempt to fix it yourself before reporting
+- When finishing, provide a concise summary of everything that was done
