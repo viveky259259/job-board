@@ -4,6 +4,7 @@ import 'package:job_board/features/jobs/jobs_dashboard_screen.dart';
 import 'package:job_board/features/application/application_tracker_screen.dart';
 import 'package:job_board/features/gamification/gamification_dashboard_screen.dart';
 import 'package:job_board/features/profile/profile_screen.dart';
+import 'package:job_board/features/settings/settings_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -20,6 +21,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     ApplicationTrackerScreen(),
     GamificationDashboardScreen(),
     ProfileScreen(),
+    SettingsScreen(),
   ];
 
   @override
@@ -52,6 +54,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             icon: Icon(Icons.person_outline),
             selectedIcon: Icon(Icons.person),
             label: 'Profile',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.settings_outlined),
+            selectedIcon: Icon(Icons.settings),
+            label: 'Settings',
           ),
         ],
       ),

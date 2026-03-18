@@ -10,6 +10,7 @@ import 'package:job_board/providers/auth_provider.dart';
 import 'package:job_board/providers/job_provider.dart';
 import 'package:job_board/providers/profile_provider.dart';
 import 'package:job_board/services/application_service.dart';
+import 'package:job_board/services/job_service.dart';
 import 'package:job_board/widgets/match_score_indicator.dart';
 
 class JobDetailScreen extends ConsumerStatefulWidget {
@@ -199,6 +200,8 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
                     ),
                   )),
             ],
+            const SizedBox(height: 24),
+            _proActions(context, theme, job),
             const SizedBox(height: 100),
           ],
         ),
@@ -293,6 +296,61 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _proActions(BuildContext context, ThemeData theme, Job job) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Pro Tools', style: theme.textTheme.titleMedium),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              child: _proButton(
+                theme,
+                icon: Icons.mic,
+                label: 'Interview Prep',
+                onTap: () => context.go('/interview-prep/${job.id}'),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: _proButton(
+                theme,
+                icon: Icons.analytics,
+                label: 'Resume Analyzer',
+                onTap: () => context.go('/resume-analyzer'),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _proButton(ThemeData theme,
+      {required IconData icon, required String label, required VoidCallback onTap}) {
+    return Card(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+          child: Row(
+            children: [
+              Icon(icon, size: 20, color: theme.colorScheme.primary),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(label, style: theme.textTheme.labelMedium),
+              ),
+              Icon(Icons.chevron_right,
+                  size: 18, color: theme.colorScheme.onSurfaceVariant),
+            ],
+          ),
+        ),
       ),
     );
   }

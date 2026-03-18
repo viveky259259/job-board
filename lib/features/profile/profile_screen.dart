@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:job_board/providers/auth_provider.dart';
 import 'package:job_board/providers/profile_provider.dart';
+import 'package:job_board/providers/subscription_provider.dart';
 import 'package:job_board/widgets/xp_progress_bar.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -26,12 +26,6 @@ class ProfileScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.edit),
             onPressed: () => context.go('/profile/edit'),
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await ref.read(authServiceProvider).signOut();
-            },
           ),
         ],
       ),
@@ -79,9 +73,13 @@ class ProfileScreen extends ConsumerWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
+            _subscriptionBadge(context, theme, ref),
+            const SizedBox(height: 16),
             XpProgressBar(data: profile.gamification),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
+            _proToolsRow(context, theme),
+            const SizedBox(height: 16),
             _profileCompleteness(theme, profile.profileCompleteness),
             const SizedBox(height: 24),
             if (profile.summary != null && profile.summary!.isNotEmpty) ...[
@@ -214,6 +212,78 @@ class ProfileScreen extends ConsumerWidget {
             ),
           ],
         ],
+      ),
+    );
+  }
+
+  Widget _subscriptionBadge(BuildContext context, ThemeData theme, WidgetRef ref) {
+    final tier = ref.watch(currentTierProvider);
+    return GestureDetector(
+      onTap: () => context.go('/upgrade'),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          gradient: tier.isPaid
+              ? LinearGradient(colors: [
+                  theme.colorScheme.primary,
+                  theme.colorScheme.tertiary,
+                ])
+              : null,
+          color: tier.isPaid ? null : theme.colorScheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              tier.isPaid ? Icons.star : Icons.star_border,
+              size: 16,
+              color: tier.isPaid ? Colors.white : theme.colorScheme.onSurfaceVariant,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              tier.isPaid ? '${tier.label} Plan' : 'Upgrade to Pro',
+              style: theme.textTheme.labelMedium?.copyWith(
+                color: tier.isPaid ? Colors.white : theme.colorScheme.onSurfaceVariant,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _proToolsRow(BuildContext context, ThemeData theme) {
+    return Row(
+      children: [
+        _toolButton(context, theme, Icons.analytics, 'Resume\nAnalyzer', '/resume-analyzer'),
+        const SizedBox(width: 8),
+        _toolButton(context, theme, Icons.bar_chart, 'Analytics', '/analytics'),
+      ],
+    );
+  }
+
+  Widget _toolButton(
+      BuildContext context, ThemeData theme, IconData icon, String label, String route) {
+    return Expanded(
+      child: Card(
+        child: InkWell(
+          onTap: () => context.go(route),
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Column(
+              children: [
+                Icon(icon, color: theme.colorScheme.primary),
+                const SizedBox(height: 6),
+                Text(label,
+                    style: theme.textTheme.labelSmall,
+                    textAlign: TextAlign.center),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

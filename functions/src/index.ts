@@ -1,19 +1,19 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
-import { crawlJobs } from "./crawlers/job_crawler";
-import { generateCoverLetter } from "./ai/cover_letter_generator";
-import { generateIntroMessage } from "./ai/intro_message_generator";
+import { crawlJobs as crawlJobsImpl } from "./crawlers/job_crawler";
+import { generateCoverLetter as genCoverLetterImpl } from "./ai/cover_letter_generator";
+import { generateIntroMessage as genIntroMessageImpl } from "./ai/intro_message_generator";
 import { calculateXp } from "./gamification/xp_engine";
-import { matchJobs } from "./matching/job_matcher";
+import { matchJobs as matchJobsImpl } from "./matching/job_matcher";
 
 admin.initializeApp();
 
-export const crawlJobsFunction = functions.https.onCall(async (request) => {
+export const crawlJobs = functions.https.onCall(async (request) => {
   const { roles, locations, jobTypes, remote } = request.data;
   const userId = request.auth?.uid;
   if (!userId) throw new functions.https.HttpsError("unauthenticated", "Login required");
 
-  const jobs = await crawlJobs({ roles, locations, jobTypes, remote });
+  const jobs = await crawlJobsImpl({ roles, locations, jobTypes, remote });
 
   const db = admin.firestore();
   const batch = db.batch();
@@ -26,19 +26,19 @@ export const crawlJobsFunction = functions.https.onCall(async (request) => {
   return { count: jobs.length };
 });
 
-export const generateCoverLetterFunction = functions.https.onCall(async (request) => {
+export const generateCoverLetter = functions.https.onCall(async (request) => {
   const userId = request.auth?.uid;
   if (!userId) throw new functions.https.HttpsError("unauthenticated", "Login required");
 
-  const result = await generateCoverLetter(request.data);
+  const result = await genCoverLetterImpl(request.data);
   return result;
 });
 
-export const generateIntroMessageFunction = functions.https.onCall(async (request) => {
+export const generateIntroMessage = functions.https.onCall(async (request) => {
   const userId = request.auth?.uid;
   if (!userId) throw new functions.https.HttpsError("unauthenticated", "Login required");
 
-  const result = await generateIntroMessage(request.data);
+  const result = await genIntroMessageImpl(request.data);
   return result;
 });
 
@@ -77,7 +77,7 @@ export const scheduledCrawl = functions.pubsub
       const prefs = userDoc.data().preferences;
       if (prefs?.targetRoles?.length > 0) {
         try {
-          const jobs = await crawlJobs({
+          const jobs = await crawlJobsImpl({
             roles: prefs.targetRoles,
             locations: prefs.locations || [],
             jobTypes: prefs.jobTypes || [],
@@ -96,7 +96,7 @@ export const scheduledCrawl = functions.pubsub
     }
   });
 
-export const matchJobsFunction = functions.https.onCall(async (request) => {
+export const matchJobsForUser = functions.https.onCall(async (request) => {
   const userId = request.auth?.uid;
   if (!userId) throw new functions.https.HttpsError("unauthenticated", "Login required");
 
@@ -109,7 +109,7 @@ export const matchJobsFunction = functions.https.onCall(async (request) => {
 
   const scored = jobsSnap.docs.map((doc) => {
     const job = doc.data();
-    const score = matchJobs(job, profile);
+    const score = matchJobsImpl(job, profile);
     return { id: doc.id, ...job, matchScore: score };
   });
 

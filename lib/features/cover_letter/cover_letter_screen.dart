@@ -6,9 +6,13 @@ import 'package:share_plus/share_plus.dart';
 import 'package:job_board/core/theme/app_theme.dart';
 import 'package:job_board/models/cover_letter.dart';
 import 'package:job_board/models/job.dart';
+import 'package:job_board/models/subscription.dart';
+import 'package:job_board/providers/auth_provider.dart';
 import 'package:job_board/providers/profile_provider.dart';
+import 'package:job_board/providers/subscription_provider.dart';
 import 'package:job_board/services/ai_service.dart';
 import 'package:job_board/services/job_service.dart';
+import 'package:job_board/features/paywall/paywall_screen.dart';
 
 class CoverLetterScreen extends ConsumerStatefulWidget {
   final String jobId;
@@ -53,6 +57,19 @@ class _CoverLetterScreenState extends ConsumerState<CoverLetterScreen>
     final profile = ref.read(profileProvider);
     if (profile == null || _job == null) return;
 
+    final canUse = ref.read(canUseCoverLetterProvider);
+    if (!canUse) {
+      if (mounted) {
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => const PaywallScreen(
+            triggerFeature: ProFeature.unlimitedCoverLetters,
+            customTitle: 'You\'ve used all free cover letters this month',
+          ),
+        ));
+      }
+      return;
+    }
+
     setState(() => _isGenerating = true);
     try {
       final cl = await AiService().generateCoverLetter(
@@ -60,6 +77,10 @@ class _CoverLetterScreenState extends ConsumerState<CoverLetterScreen>
         profile: profile,
         tone: _selectedTone,
       );
+      final user = ref.read(currentUserProvider);
+      if (user != null) {
+        await ref.read(subscriptionServiceProvider).incrementUsage(user.uid, 'coverLetter');
+      }
       setState(() {
         _coverLetter = cl;
         _editController.text = cl.content;
@@ -79,6 +100,19 @@ class _CoverLetterScreenState extends ConsumerState<CoverLetterScreen>
     final profile = ref.read(profileProvider);
     if (profile == null || _job == null) return;
 
+    final canUse = ref.read(canUseIntroMessageProvider);
+    if (!canUse) {
+      if (mounted) {
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => const PaywallScreen(
+            triggerFeature: ProFeature.unlimitedIntroMessages,
+            customTitle: 'You\'ve used all free intro messages this month',
+          ),
+        ));
+      }
+      return;
+    }
+
     setState(() => _isGenerating = true);
     try {
       final msg = await AiService().generateIntroMessage(
@@ -86,6 +120,10 @@ class _CoverLetterScreenState extends ConsumerState<CoverLetterScreen>
         profile: profile,
         tone: _selectedTone,
       );
+      final user = ref.read(currentUserProvider);
+      if (user != null) {
+        await ref.read(subscriptionServiceProvider).incrementUsage(user.uid, 'introMessage');
+      }
       setState(() => _introMessage = msg);
     } catch (_) {
       if (mounted) {

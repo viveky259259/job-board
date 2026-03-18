@@ -91,4 +91,17 @@ class AppConstants {
     'Director',
     'Executive',
   ];
+
+  // Subscription limits (Free tier)
+  static const int freeCoverLettersPerMonth = 3;
+  static const int freeIntroMessagesPerMonth = 5;
+  static const int freeActiveApplications = 10;
+  static const int freeResumeAnalyses = 0;
+  static const int freeInterviewPreps = 0;
+
+  // Subscription pricing
+  static const double proPriceMonthly = 14.99;
+  static const double premiumPriceMonthly = 29.99;
+  static const double proPriceYearly = 119.99;
+  static const double premiumPriceYearly = 239.99;
 }

@@ -11,6 +11,11 @@ import 'package:job_board/features/profile/profile_edit_screen.dart';
 import 'package:job_board/features/jobs/job_detail_screen.dart';
 import 'package:job_board/features/cover_letter/cover_letter_screen.dart';
 import 'package:job_board/features/gamification/achievements_screen.dart';
+import 'package:job_board/features/resume_analyzer/resume_analyzer_screen.dart';
+import 'package:job_board/features/interview_prep/interview_prep_screen.dart';
+import 'package:job_board/features/analytics/analytics_screen.dart';
+import 'package:job_board/features/settings/settings_screen.dart';
+import 'package:job_board/features/paywall/paywall_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authStateProvider);
@@ -66,8 +71,31 @@ final routerProvider = Provider<GoRouter>((ref) {
             },
           ),
           GoRoute(
+            path: 'interview-prep/:jobId',
+            builder: (context, state) {
+              final jobId = state.pathParameters['jobId']!;
+              return InterviewPrepScreen(jobId: jobId);
+            },
+          ),
+          GoRoute(
             path: 'achievements',
             builder: (context, state) => const AchievementsScreen(),
+          ),
+          GoRoute(
+            path: 'resume-analyzer',
+            builder: (context, state) => const ResumeAnalyzerScreen(),
+          ),
+          GoRoute(
+            path: 'analytics',
+            builder: (context, state) => const AnalyticsScreen(),
+          ),
+          GoRoute(
+            path: 'settings',
+            builder: (context, state) => const SettingsScreen(),
+          ),
+          GoRoute(
+            path: 'upgrade',
+            builder: (context, state) => const PaywallScreen(),
           ),
         ],
       ),
