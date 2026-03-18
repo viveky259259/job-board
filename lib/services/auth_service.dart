@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:job_board/models/user_profile.dart';
 
 class AuthService {
@@ -12,6 +13,8 @@ class AuthService {
 
   User? get currentUser => _auth.currentUser;
   Stream<User?> get authStateChanges => _auth.authStateChanges();
+
+  // --- Email ---
 
   Future<UserCredential> signUpWithEmail(String email, String password) async {
     final credential = await _auth.createUserWithEmailAndPassword(
@@ -27,6 +30,42 @@ class AuthService {
   Future<UserCredential> signInWithEmail(String email, String password) async {
     return _auth.signInWithEmailAndPassword(email: email, password: password);
   }
+
+  // --- Google ---
+
+  Future<UserCredential> signInWithGoogle() async {
+    final provider = GoogleAuthProvider();
+    provider.addScope('email');
+    provider.addScope('profile');
+
+    final credential = kIsWeb
+        ? await _auth.signInWithPopup(provider)
+        : await _auth.signInWithProvider(provider);
+
+    if (credential.user != null) {
+      await _createUserProfile(credential.user!);
+    }
+    return credential;
+  }
+
+  // --- GitHub ---
+
+  Future<UserCredential> signInWithGitHub() async {
+    final provider = GithubAuthProvider();
+    provider.addScope('read:user');
+    provider.addScope('user:email');
+
+    final credential = kIsWeb
+        ? await _auth.signInWithPopup(provider)
+        : await _auth.signInWithProvider(provider);
+
+    if (credential.user != null) {
+      await _createUserProfile(credential.user!);
+    }
+    return credential;
+  }
+
+  // --- Common ---
 
   Future<void> signOut() async {
     await _auth.signOut();

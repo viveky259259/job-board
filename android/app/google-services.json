@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "927540652804",
+    "project_id": "sample-task-app-bmzs0q",
+    "storage_bucket": "sample-task-app-bmzs0q.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:927540652804:android:4002b1b0b8e8e418607e51",
+        "android_client_info": {
+          "package_name": "com.jobhunter.job_board"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDmSF8Sv6TCdC4nvg1-S-AQ5SWwZa9vGLY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
