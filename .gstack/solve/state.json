@@ -1,21 +1,19 @@
 {
-  "problem": "Build an agentic job hunting system with Flutter/Firebase that crawls jobs, matches to user profile, generates cover letters and intro messages, tracks applications, and gamifies the process",
+  "problem": "Build a stateful Interview Preparation Framework as a reusable package. Configurable by topic/tech. Start with comprehensive Flutter interviews from beginner to expert.",
   "type": "feature",
-  "started_at": "2026-03-18T19:22:00Z",
-  "current_phase": 6,
+  "started_at": "2026-03-18T21:00:00Z",
+  "current_phase": 3,
   "phases": {
-    "think": { "status": "completed", "completed_at": "2026-03-18T19:22:00Z", "artifact": "brainstorm-job-hunter-ai-2026-03-18.md" },
-    "plan": { "status": "completed", "completed_at": "2026-03-18T19:23:00Z", "artifact": "plan-output.md" },
-    "build": { "status": "completed", "completed_at": "2026-03-18T19:45:00Z", "artifact": "build-output.md" },
-    "review": { "status": "completed", "completed_at": "2026-03-18T19:46:00Z" },
-    "test": { "status": "completed", "completed_at": "2026-03-18T19:47:00Z" },
-    "ship": { "status": "completed", "completed_at": "2026-03-18T19:48:00Z" }
+    "think": { "status": "completed", "completed_at": "2026-03-18T21:00:00Z" },
+    "plan": { "status": "completed", "completed_at": "2026-03-18T21:01:00Z" },
+    "build": { "status": "in_progress" },
+    "review": { "status": "pending" },
+    "test": { "status": "pending" },
+    "ship": { "status": "pending" }
   },
   "decisions": [
-    { "phase": "think", "issue": "scope", "choice": "HOLD SCOPE — full MVP with all features", "at": "2026-03-18T19:22:00Z" },
-    { "phase": "plan", "issue": "state-management", "choice": "Riverpod", "at": "2026-03-18T19:23:00Z" },
-    { "phase": "plan", "issue": "job-sources", "choice": "RemoteOK + Adzuna + Demo fallback", "at": "2026-03-18T19:23:00Z" },
-    { "phase": "plan", "issue": "ai-approach", "choice": "Cloud Functions with local template fallback", "at": "2026-03-18T19:23:00Z" }
+    { "phase": "think", "issue": "scope", "choice": "HOLD SCOPE — full framework + Flutter content", "at": "2026-03-18T21:00:00Z" },
+    { "phase": "plan", "issue": "architecture", "choice": "Local Dart package at packages/interview_prep/ with path dependency", "at": "2026-03-18T21:01:00Z" }
   ],
   "loop_count": { "build": 0, "review": 0, "test": 0 },
   "branch": "main"

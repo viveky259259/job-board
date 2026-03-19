@@ -1,0 +1,212 @@
+import 'package:interview_prep/src/models/difficulty.dart';
+import 'package:interview_prep/src/models/question.dart';
+
+List<InterviewQuestion> intermediateQuestions() => const [
+  // --- State Management ---
+  InterviewQuestion(
+    id: 'i_state_1',
+    topic: 'state_management',
+    subtopic: 'Provider',
+    difficulty: Difficulty.intermediate,
+    type: QuestionType.conceptual,
+    question: 'Compare Provider, Riverpod, and BLoC. When would you choose each?',
+    answer: 'Provider: simple, built on InheritedWidget, good for small-medium apps. Riverpod: compile-safe, testable, no BuildContext dependency, good for all sizes. BLoC: event-driven, strict separation, good for large teams with complex business logic.',
+    explanation: 'Provider is the simplest but tightly coupled to the widget tree. Riverpod fixes Provider\'s limitations (global access, compile safety). BLoC enforces unidirectional data flow with Events → BLoC → States.',
+  ),
+  InterviewQuestion(
+    id: 'i_state_2',
+    topic: 'state_management',
+    subtopic: 'Riverpod',
+    difficulty: Difficulty.intermediate,
+    type: QuestionType.conceptual,
+    question: 'What are the different types of Riverpod providers and when do you use each?',
+    answer: 'Provider (read-only computed value), StateProvider (simple mutable state), FutureProvider (async value), StreamProvider (stream value), NotifierProvider (complex state with methods), StateNotifierProvider (legacy complex state).',
+    explanation: 'Choose based on the state shape: StateProvider for a simple bool/int, FutureProvider for an API call, NotifierProvider for state with business logic methods.',
+  ),
+  InterviewQuestion(
+    id: 'i_state_3',
+    topic: 'state_management',
+    subtopic: 'BLoC',
+    difficulty: Difficulty.intermediate,
+    type: QuestionType.conceptual,
+    question: 'Explain the BLoC pattern. What are Events and States?',
+    answer: 'BLoC (Business Logic Component) separates UI from business logic. The UI dispatches Events to the BLoC, which processes them and emits new States. The UI rebuilds based on State changes.',
+    explanation: 'Event: user tapped login button (LoginSubmitted)\nBLoC: validates, calls API, emits state\nState: LoginLoading → LoginSuccess or LoginFailure\nUI: BlocBuilder rebuilds based on state',
+  ),
+
+  // --- Navigation ---
+  InterviewQuestion(
+    id: 'i_nav_1',
+    topic: 'navigation',
+    subtopic: 'GoRouter',
+    difficulty: Difficulty.intermediate,
+    type: QuestionType.conceptual,
+    question: 'What advantages does GoRouter provide over Navigator 1.0?',
+    answer: 'Declarative routing, deep linking support, URL-based navigation for web, route guards via redirect, nested navigation, type-safe path parameters, and shell routes for persistent UI.',
+    explanation: 'GoRouter maps URLs to widgets declaratively. It handles browser back/forward on web, supports redirects for auth guards, and integrates with Riverpod for reactive routing.',
+  ),
+  InterviewQuestion(
+    id: 'i_nav_2',
+    topic: 'navigation',
+    subtopic: 'Deep Linking',
+    difficulty: Difficulty.intermediate,
+    type: QuestionType.conceptual,
+    question: 'How does deep linking work in Flutter?',
+    answer: 'Deep linking maps external URLs to specific screens. On mobile, configure iOS Universal Links / Android App Links. On web, URLs map naturally to routes. GoRouter or Navigator 2.0 handles the route parsing.',
+    explanation: 'The app receives a URI, parses path/query parameters, and navigates to the matching route. GoRouter handles this automatically when routes are configured with path parameters.',
+  ),
+
+  // --- Widgets ---
+  InterviewQuestion(
+    id: 'i_widget_1',
+    topic: 'widgets',
+    subtopic: 'Keys',
+    difficulty: Difficulty.intermediate,
+    type: QuestionType.conceptual,
+    question: 'Explain the difference between GlobalKey and ValueKey.',
+    answer: 'ValueKey compares by value and is used to identify widgets in lists. GlobalKey is unique across the entire app and provides access to the State and BuildContext of a widget from anywhere.',
+    explanation: 'ValueKey<String>("item_1") — identifies a widget by its value in a list.\nGlobalKey<FormState>() — allows calling formKey.currentState!.validate() from outside the Form widget.\nGlobalKeys are expensive; avoid overusing them.',
+  ),
+  InterviewQuestion(
+    id: 'i_widget_2',
+    topic: 'widgets',
+    subtopic: 'Lifecycle',
+    difficulty: Difficulty.intermediate,
+    type: QuestionType.conceptual,
+    question: 'When is didUpdateWidget called and what should you do in it?',
+    answer: 'didUpdateWidget is called when the parent rebuilds and provides a new widget configuration. Use it to compare old and new widget properties and update State accordingly (e.g., restart an animation controller when a parameter changes).',
+    explanation: 'Example: if your widget takes a "url" parameter and it changes, you\'d start a new network request in didUpdateWidget. Always call super.didUpdateWidget(oldWidget).',
+  ),
+
+  // --- Networking ---
+  InterviewQuestion(
+    id: 'i_net_1',
+    topic: 'networking',
+    subtopic: 'REST',
+    difficulty: Difficulty.intermediate,
+    type: QuestionType.conceptual,
+    question: 'How do you handle API errors and loading states in Flutter?',
+    answer: 'Use a sealed class or enum for states: Loading, Success(data), Error(message). FutureBuilder/StreamBuilder handle this with connectionState. With Riverpod, AsyncValue provides .when(loading, error, data).',
+    explanation: 'sealed class ApiState {}\nclass Loading extends ApiState {}\nclass Success extends ApiState { final Data data; }\nclass Error extends ApiState { final String message; }\n\nRiverpod: ref.watch(provider).when(data: ..., error: ..., loading: ...)',
+  ),
+  InterviewQuestion(
+    id: 'i_net_2',
+    topic: 'networking',
+    subtopic: 'Local Storage',
+    difficulty: Difficulty.intermediate,
+    type: QuestionType.conceptual,
+    question: 'Compare SharedPreferences, Hive, and SQLite for local storage in Flutter.',
+    answer: 'SharedPreferences: simple key-value pairs, good for settings. Hive: fast NoSQL, good for structured data without complex queries. SQLite (sqflite): full SQL database, good for complex relational data with queries.',
+    explanation: 'SharedPreferences: prefs.setString("key", "value")\nHive: box.put("key", object) — faster than SharedPreferences, supports custom objects\nsqflite: full SQL with JOINs, indexes, transactions',
+  ),
+
+  // --- Animations ---
+  InterviewQuestion(
+    id: 'i_anim_1',
+    topic: 'animations',
+    subtopic: 'Implicit',
+    difficulty: Difficulty.intermediate,
+    type: QuestionType.conceptual,
+    question: 'What is the difference between implicit and explicit animations in Flutter?',
+    answer: 'Implicit animations (AnimatedContainer, AnimatedOpacity) automatically animate when a property changes — just change the value and Flutter handles the animation. Explicit animations use AnimationController for full control over timing, curves, and sequencing.',
+    explanation: 'Implicit: simpler, less control. Change a property and Flutter animates it.\nExplicit: more control. You manage AnimationController, Tween, and drive the animation manually.\nUse implicit first; only use explicit when you need fine-grained control.',
+  ),
+  InterviewQuestion(
+    id: 'i_anim_2',
+    topic: 'animations',
+    subtopic: 'Hero',
+    difficulty: Difficulty.intermediate,
+    type: QuestionType.conceptual,
+    question: 'How does Hero animation work in Flutter?',
+    answer: 'Hero wraps a widget with a unique tag. When navigating between two screens that have Hero widgets with the same tag, Flutter automatically animates the widget from its position on the first screen to its position on the second.',
+    explanation: 'Hero(tag: "avatar", child: Image(...))\nBoth source and destination screens need a Hero with the same tag. Flutter calculates the transform and animates during the page transition.',
+  ),
+
+  // --- Testing ---
+  InterviewQuestion(
+    id: 'i_test_1',
+    topic: 'testing',
+    subtopic: 'Widget Tests',
+    difficulty: Difficulty.intermediate,
+    type: QuestionType.conceptual,
+    question: 'How do you write a widget test in Flutter?',
+    answer: 'Use testWidgets and WidgetTester. Pump the widget with tester.pumpWidget(). Find widgets with find.byType/byText/byKey. Interact with tester.tap/enterText. Assert with expect(find.text("Hello"), findsOneWidget).',
+    explanation: 'testWidgets("counter increments", (tester) async {\n  await tester.pumpWidget(MyApp());\n  expect(find.text("0"), findsOneWidget);\n  await tester.tap(find.byIcon(Icons.add));\n  await tester.pump();\n  expect(find.text("1"), findsOneWidget);\n});',
+  ),
+  InterviewQuestion(
+    id: 'i_test_2',
+    topic: 'testing',
+    subtopic: 'Mocking',
+    difficulty: Difficulty.intermediate,
+    type: QuestionType.conceptual,
+    question: 'How do you mock dependencies in Flutter tests?',
+    answer: 'Use packages like mocktail or mockito. Create a mock class that extends Mock and implements the dependency. Set up return values with when(). Verify calls with verify().',
+    explanation: 'class MockAuthService extends Mock implements AuthService {}\nfinal mock = MockAuthService();\nwhen(() => mock.signIn(any(), any())).thenAnswer((_) async => user);\n// ...test...\nverify(() => mock.signIn("email", "pass")).called(1);',
+  ),
+
+  // --- Layouts ---
+  InterviewQuestion(
+    id: 'i_layout_1',
+    topic: 'layouts',
+    subtopic: 'Responsive',
+    difficulty: Difficulty.intermediate,
+    type: QuestionType.conceptual,
+    question: 'How do you build responsive layouts in Flutter?',
+    answer: 'Use MediaQuery for screen dimensions, LayoutBuilder for parent constraints, Flex/Expanded for proportional sizing, and adaptive breakpoints to switch between mobile/tablet/desktop layouts.',
+    explanation: 'MediaQuery.of(context).size.width — screen width\nLayoutBuilder(builder: (context, constraints) => ...) — parent constraints\nCombine with if statements or custom breakpoint classes to show different layouts at different sizes.',
+  ),
+  InterviewQuestion(
+    id: 'i_layout_2',
+    topic: 'layouts',
+    subtopic: 'Constraints',
+    difficulty: Difficulty.intermediate,
+    type: QuestionType.scenario,
+    question: 'A Container with width: 200 is placed inside a Column. The Column is inside a SizedBox with width: 100. What width will the Container be?',
+    answer: '100 pixels. The SizedBox constrains the Column to 100px wide, so the Column passes tight constraints (min=max=100) to its children. The Container cannot exceed these constraints.',
+    explanation: 'Flutter\'s constraint system: parent constraints win. The Container wants 200, but the incoming constraints say max width is 100, so it becomes 100. This is a common gotcha!',
+  ),
+
+  // --- Architecture ---
+  InterviewQuestion(
+    id: 'i_arch_1',
+    topic: 'architecture',
+    subtopic: 'Repository',
+    difficulty: Difficulty.intermediate,
+    type: QuestionType.conceptual,
+    question: 'What is the Repository pattern and why use it in Flutter?',
+    answer: 'The Repository pattern abstracts data sources behind a single interface. The UI/business logic depends on the repository interface, not the concrete implementation. This makes swapping data sources (API, cache, mock) easy and testable.',
+    explanation: 'abstract class UserRepository { Future<User> getUser(String id); }\nclass FirebaseUserRepo implements UserRepository { ... }\nclass MockUserRepo implements UserRepository { ... }\nThe app code only depends on UserRepository, never on Firebase directly.',
+  ),
+
+  // --- Dart Advanced ---
+  InterviewQuestion(
+    id: 'i_dart_1',
+    topic: 'dart_fundamentals',
+    subtopic: 'Async/Await',
+    difficulty: Difficulty.intermediate,
+    type: QuestionType.conceptual,
+    question: 'What is the event loop in Dart? How does it handle async operations?',
+    answer: 'Dart is single-threaded with an event loop. It processes events from two queues: the microtask queue (higher priority, e.g., Future.microtask) and the event queue (lower priority, e.g., I/O, timers). async/await adds continuations to these queues.',
+    explanation: 'The event loop runs:\n1. All microtasks first\n2. Then one event from the event queue\n3. Repeat\nThis means a tight loop of microtasks can starve the event queue. Use await or Future.delayed to yield to the event loop.',
+  ),
+  InterviewQuestion(
+    id: 'i_dart_2',
+    topic: 'dart_fundamentals',
+    subtopic: 'Generics',
+    difficulty: Difficulty.intermediate,
+    type: QuestionType.conceptual,
+    question: 'What are generics in Dart and why use them?',
+    answer: 'Generics allow you to write type-safe, reusable code. Instead of using dynamic, you parameterize classes/functions with type variables (e.g., List<T>) that are resolved at use-site.',
+    explanation: 'class Result<T> { final T data; final String? error; }\nResult<User> userResult = Result(data: user);\nResult<List<Job>> jobsResult = Result(data: jobs);\nGenerics provide compile-time type checking while keeping code DRY.',
+  ),
+  InterviewQuestion(
+    id: 'i_dart_3',
+    topic: 'dart_fundamentals',
+    subtopic: 'OOP',
+    difficulty: Difficulty.intermediate,
+    type: QuestionType.conceptual,
+    question: 'What are mixins in Dart? How do they differ from inheritance?',
+    answer: 'Mixins allow reusing code across multiple class hierarchies without multiple inheritance. Use the "with" keyword. Unlike extends (single inheritance), you can mix in multiple mixins.',
+    explanation: 'mixin Loggable { void log(String msg) => print(msg); }\nclass UserService with Loggable { ... }\nMixins cannot have constructors. Use "mixin on ClassName" to restrict which classes can use the mixin.',
+  ),
+];

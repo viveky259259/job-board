@@ -1,0 +1,22 @@
+name: interview_prep
+description: A stateful interview preparation framework. Configurable by topic/tech with progress tracking, quizzes, spaced repetition, and study materials.
+version: 1.0.0
+publish_to: 'none'
+
+environment:
+  sdk: ^3.10.8
+
+dependencies:
+  flutter:
+    sdk: flutter
+  equatable: ^2.0.8
+  uuid: ^4.5.3
+  flutter_riverpod: ^2.6.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true

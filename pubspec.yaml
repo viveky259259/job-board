@@ -41,6 +41,10 @@ dependencies:
   equatable: ^2.0.8
   json_annotation: ^4.11.0
 
+  # Interview Prep Package
+  interview_prep:
+    path: packages/interview_prep
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

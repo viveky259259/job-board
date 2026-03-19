@@ -255,11 +255,23 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   Widget _proToolsRow(BuildContext context, ThemeData theme) {
-    return Row(
+    return Column(
       children: [
-        _toolButton(context, theme, Icons.analytics, 'Resume\nAnalyzer', '/resume-analyzer'),
-        const SizedBox(width: 8),
-        _toolButton(context, theme, Icons.bar_chart, 'Analytics', '/analytics'),
+        Row(
+          children: [
+            _toolButton(context, theme, Icons.analytics, 'Resume\nAnalyzer', '/resume-analyzer'),
+            const SizedBox(width: 8),
+            _toolButton(context, theme, Icons.bar_chart, 'Analytics', '/analytics'),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            _toolButton(context, theme, Icons.school, 'Interview\nPrep', '/interview-prep-framework'),
+            const SizedBox(width: 8),
+            const Expanded(child: SizedBox.shrink()),
+          ],
+        ),
       ],
     );
   }
