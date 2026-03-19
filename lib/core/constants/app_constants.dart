@@ -58,7 +58,6 @@ class AppConstants {
     'linkedin',
     'ycombinator',
     'google',
-    'adzuna',
     'manual',
   ];
 

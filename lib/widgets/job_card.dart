@@ -192,8 +192,6 @@ class JobCard extends StatelessWidget {
         return const Color(0xFF4285F4);
       case 'remoteok':
         return const Color(0xFF00C853);
-      case 'adzuna':
-        return const Color(0xFF2962FF);
       default:
         return Colors.grey;
     }
@@ -209,8 +207,6 @@ class JobCard extends StatelessWidget {
         return 'Google';
       case 'remoteok':
         return 'RemoteOK';
-      case 'adzuna':
-        return 'Adzuna';
       default:
         return source.toUpperCase();
     }
