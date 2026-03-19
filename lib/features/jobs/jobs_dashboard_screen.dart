@@ -56,18 +56,25 @@ class _JobsDashboardScreenState extends ConsumerState<JobsDashboardScreen> {
     final user = ref.read(currentUserProvider);
     if (user == null) return;
 
-    await ref.read(applicationServiceProvider).saveJob(
-          userId: user.uid,
-          jobId: job.id,
-          jobTitle: job.title,
-          company: job.company,
-          matchScore: job.matchScore,
+    try {
+      await ref.read(applicationServiceProvider).saveJob(
+            userId: user.uid,
+            jobId: job.id,
+            jobTitle: job.title,
+            company: job.company,
+            matchScore: job.matchScore,
+          );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${job.title} saved! +${AppConstants.xpSaveJob} XP')),
         );
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${job.title} saved! +${AppConstants.xpSaveJob} XP')),
-      );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to save job.')),
+        );
+      }
     }
   }
 

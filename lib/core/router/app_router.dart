@@ -19,21 +19,22 @@ import 'package:job_board/features/settings/settings_screen.dart';
 import 'package:job_board/features/paywall/paywall_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authStateProvider);
+  final authNotifier = ref.watch(authNotifierProvider);
 
   return GoRouter(
     initialLocation: '/',
+    refreshListenable: authNotifier,
     redirect: (context, state) {
+      final authState = ref.read(authStateProvider);
+      if (authState.isLoading) return null;
+
       final isLoggedIn = authState.value != null;
       final loc = state.matchedLocation;
       final isAuthRoute = loc == '/login' || loc == '/signup';
       final isOnboarding = loc == '/onboarding';
 
       if (!isLoggedIn && !isAuthRoute) return '/login';
-      // Only redirect from /login to home — /signup redirect is handled
-      // by the signup handler itself (navigates to /onboarding)
       if (isLoggedIn && loc == '/login') return '/';
-      // Allow /signup and /onboarding for logged-in users
       if (!isLoggedIn && isOnboarding) return '/login';
       return null;
     },

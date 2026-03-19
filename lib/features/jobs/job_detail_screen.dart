@@ -9,7 +9,7 @@ import 'package:job_board/models/job.dart';
 import 'package:job_board/providers/auth_provider.dart';
 import 'package:job_board/providers/job_provider.dart';
 import 'package:job_board/providers/profile_provider.dart';
-import 'package:job_board/services/application_service.dart';
+import 'package:job_board/providers/application_provider.dart';
 import 'package:job_board/services/job_service.dart';
 import 'package:job_board/widgets/match_score_indicator.dart';
 
@@ -39,7 +39,7 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
 
     Application? app;
     if (user != null) {
-      app = await ApplicationService().getApplicationForJob(user.uid, widget.jobId);
+      app = await ref.read(applicationServiceProvider).getApplicationForJob(user.uid, widget.jobId);
     }
 
     if (mounted) {
@@ -61,18 +61,24 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
     final user = ref.read(currentUserProvider);
     if (user == null || _job == null) return;
 
-    final app = await ApplicationService().saveJob(
-      userId: user.uid,
-      jobId: _job!.id,
-      jobTitle: _job!.title,
-      company: _job!.company,
-      matchScore: _job!.matchScore,
-    );
+    try {
+      final app = await ref.read(applicationServiceProvider).saveJob(
+            userId: user.uid,
+            jobId: _job!.id,
+            jobTitle: _job!.title,
+            company: _job!.company,
+            matchScore: _job!.matchScore,
+          );
 
-    setState(() => _application = app);
-    if (mounted) {
+      if (!mounted) return;
+      setState(() => _application = app);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Job saved!')),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to save job.')),
       );
     }
   }
@@ -81,22 +87,27 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
     final user = ref.read(currentUserProvider);
     if (user == null || _application == null) return;
 
-    await ApplicationService().updateStatus(
-      user.uid,
-      _application!.id,
-      ApplicationStatus.applied,
-    );
+    try {
+      await ref.read(applicationServiceProvider).updateStatus(
+            user.uid,
+            _application!.id,
+            ApplicationStatus.applied,
+          );
 
-    setState(() {
-      _application = _application!.copyWith(
-        status: ApplicationStatus.applied,
-        appliedAt: DateTime.now(),
-      );
-    });
-
-    if (mounted) {
+      if (!mounted) return;
+      setState(() {
+        _application = _application!.copyWith(
+          status: ApplicationStatus.applied,
+          appliedAt: DateTime.now(),
+        );
+      });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Marked as applied! +25 XP')),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to update status.')),
       );
     }
   }

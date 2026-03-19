@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:job_board/core/constants/app_constants.dart';
 import 'package:job_board/models/subscription.dart';
 import 'package:job_board/providers/auth_provider.dart';
 import 'package:job_board/providers/subscription_provider.dart';
-import 'package:job_board/features/paywall/paywall_screen.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -80,7 +80,15 @@ class SettingsScreen extends ConsumerWidget {
                   ),
                 );
                 if (confirm == true) {
-                  await ref.read(authServiceProvider).signOut();
+                  try {
+                    await ref.read(authServiceProvider).signOut();
+                  } catch (_) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Failed to sign out.')),
+                      );
+                    }
+                  }
                 }
               },
             ),
@@ -151,19 +159,11 @@ class SettingsScreen extends ConsumerWidget {
               width: double.infinity,
               child: tier.isPaid
                   ? OutlinedButton(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => const PaywallScreen()),
-                        );
-                      },
+                      onPressed: () => context.push('/upgrade'),
                       child: const Text('Manage Subscription'),
                     )
                   : FilledButton.icon(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => const PaywallScreen()),
-                        );
-                      },
+                      onPressed: () => context.push('/upgrade'),
                       icon: const Icon(Icons.star),
                       label: const Text('Upgrade to Pro'),
                     ),

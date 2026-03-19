@@ -28,7 +28,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Future<void> _login() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!(_formKey.currentState?.validate() ?? false)) return;
     setState(() { _isLoading = true; _error = null; });
 
     try {
@@ -37,7 +37,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             _passwordController.text,
           );
     } catch (e) {
-      setState(() => _error = _parseAuthError(e.toString()));
+      if (mounted) setState(() => _error = _parseAuthError(e.toString()));
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -48,7 +48,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     try {
       await ref.read(authServiceProvider).signInWithGoogle();
     } catch (e) {
-      if (mounted && !e.toString().contains('sign-in-cancelled')) {
+      if (!mounted) return;
+      final msg = e.toString();
+      if (!msg.contains('sign-in-cancelled') && !msg.contains('popup-closed-by-user')) {
         setState(() => _error = 'Google sign-in failed. Please try again.');
       }
     } finally {

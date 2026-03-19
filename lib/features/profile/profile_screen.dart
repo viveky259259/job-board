@@ -11,11 +11,33 @@ class ProfileScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final profile = ref.watch(profileProvider);
+    final profileAsync = ref.watch(profileStreamProvider);
+    final profile = profileAsync.value;
 
-    if (profile == null) {
+    if (profileAsync.isLoading) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (profile == null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Profile')),
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.person_off, size: 48),
+              const SizedBox(height: 12),
+              const Text('Profile not found'),
+              const SizedBox(height: 12),
+              FilledButton(
+                onPressed: () => context.go('/onboarding'),
+                child: const Text('Set Up Profile'),
+              ),
+            ],
+          ),
+        ),
       );
     }
 

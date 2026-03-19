@@ -53,7 +53,7 @@ class JobFilter {
         return job.title.toLowerCase().contains(q) ||
             job.company.toLowerCase().contains(q) ||
             job.location.toLowerCase().contains(q) ||
-            job.tags.any((t) => t.contains(q));
+            job.tags.any((t) => t.toLowerCase().contains(q));
       }).toList();
     }
 

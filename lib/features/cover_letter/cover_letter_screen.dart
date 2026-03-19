@@ -10,8 +10,8 @@ import 'package:job_board/models/subscription.dart';
 import 'package:job_board/providers/auth_provider.dart';
 import 'package:job_board/providers/profile_provider.dart';
 import 'package:job_board/providers/subscription_provider.dart';
+import 'package:job_board/providers/job_provider.dart';
 import 'package:job_board/services/ai_service.dart';
-import 'package:job_board/services/job_service.dart';
 import 'package:job_board/features/paywall/paywall_screen.dart';
 
 class CoverLetterScreen extends ConsumerStatefulWidget {
@@ -49,8 +49,12 @@ class _CoverLetterScreenState extends ConsumerState<CoverLetterScreen>
   }
 
   Future<void> _loadJob() async {
-    final job = await JobService().getJob(widget.jobId);
-    if (mounted) setState(() { _job = job; _isLoading = false; });
+    try {
+      final job = await ref.read(jobServiceProvider).getJob(widget.jobId);
+      if (mounted) setState(() { _job = job; _isLoading = false; });
+    } catch (_) {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   Future<void> _generateCoverLetter() async {
@@ -166,20 +170,23 @@ class _CoverLetterScreenState extends ConsumerState<CoverLetterScreen>
         children: [
           Padding(
             padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Text('Tone:', style: theme.textTheme.labelLarge),
-                const SizedBox(width: 12),
-                ...ContentTone.values.map((tone) => Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: ChoiceChip(
-                        label: Text(tone.name[0].toUpperCase() + tone.name.substring(1)),
-                        selected: _selectedTone == tone,
-                        onSelected: (_) =>
-                            setState(() => _selectedTone = tone),
-                      ),
-                    )),
-              ],
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  Text('Tone:', style: theme.textTheme.labelLarge),
+                  const SizedBox(width: 12),
+                  ...ContentTone.values.map((tone) => Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: ChoiceChip(
+                          label: Text(tone.name[0].toUpperCase() + tone.name.substring(1)),
+                          selected: _selectedTone == tone,
+                          onSelected: (_) =>
+                              setState(() => _selectedTone = tone),
+                        ),
+                      )),
+                ],
+              ),
             ),
           ),
           Expanded(
