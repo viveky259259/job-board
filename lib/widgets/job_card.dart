@@ -87,13 +87,14 @@ class JobCard extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: theme.colorScheme.tertiaryContainer,
+                        color: _sourceColor(job.source),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
-                        job.source.toUpperCase(),
+                        _sourceLabel(job.source),
                         style: theme.textTheme.labelSmall?.copyWith(
-                          color: theme.colorScheme.onTertiaryContainer,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
@@ -179,5 +180,39 @@ class JobCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  static Color _sourceColor(String source) {
+    switch (source) {
+      case 'linkedin':
+        return const Color(0xFF0A66C2);
+      case 'ycombinator':
+        return const Color(0xFFFF6600);
+      case 'google':
+        return const Color(0xFF4285F4);
+      case 'remoteok':
+        return const Color(0xFF00C853);
+      case 'adzuna':
+        return const Color(0xFF2962FF);
+      default:
+        return Colors.grey;
+    }
+  }
+
+  static String _sourceLabel(String source) {
+    switch (source) {
+      case 'linkedin':
+        return 'LinkedIn';
+      case 'ycombinator':
+        return 'YC';
+      case 'google':
+        return 'Google';
+      case 'remoteok':
+        return 'RemoteOK';
+      case 'adzuna':
+        return 'Adzuna';
+      default:
+        return source.toUpperCase();
+    }
   }
 }

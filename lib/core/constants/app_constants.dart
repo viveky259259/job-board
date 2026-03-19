@@ -54,8 +54,11 @@ class AppConstants {
 
   // Job sources
   static const List<String> jobSources = [
-    'adzuna',
     'remoteok',
+    'linkedin',
+    'ycombinator',
+    'google',
+    'adzuna',
     'manual',
   ];
 
