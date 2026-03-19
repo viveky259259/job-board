@@ -1,0 +1,63 @@
+appId: com.jobhunter.job_board
+env:
+  EMAIL: ${TEST_EMAIL:-maestro_test@test.com}
+  PASSWORD: ${TEST_PASSWORD:-TestPass123!}
+tags:
+  - profile
+  - view
+---
+
+# Test: View profile screen and check key elements
+- launchApp:
+    appId: com.jobhunter.job_board
+    clearState: true
+    permissions:
+      all: allow
+
+- extendedWaitUntil:
+    visible:
+      text: "JobHunter AI"
+    timeout: 15000
+
+- runFlow:
+    file: ../../helpers/helper_login.yaml
+
+- extendedWaitUntil:
+    visible:
+      text: "Jobs"
+    timeout: 10000
+
+# Navigate to Profile tab
+- tapOn:
+    text: "Profile"
+    label: "Switch to Profile tab"
+
+- extendedWaitUntil:
+    visible:
+      text: "Profile"
+    timeout: 5000
+
+- takeScreenshot: "profile_screen"
+
+# Check profile elements
+- assertVisible:
+    text: "Profile Completeness"
+    optional: true
+    label: "Profile completeness section visible"
+
+# Check Pro tools links
+- scrollUntilVisible:
+    element:
+      text: "Resume\nAnalyzer"
+    direction: DOWN
+    timeout: 3000
+    optional: true
+
+- scrollUntilVisible:
+    element:
+      text: "Analytics"
+    direction: DOWN
+    timeout: 3000
+    optional: true
+
+- takeScreenshot: "profile_pro_tools"

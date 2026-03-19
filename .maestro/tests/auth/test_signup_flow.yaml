@@ -1,0 +1,77 @@
+appId: com.jobhunter.job_board
+env:
+  EMAIL: ${TEST_EMAIL:-maestro_test_signup@test.com}
+  PASSWORD: ${TEST_PASSWORD:-TestPass123!}
+tags:
+  - auth
+  - signup
+  - critical
+---
+
+# Test: Full signup flow (email → onboarding → home)
+- launchApp:
+    appId: com.jobhunter.job_board
+    clearState: true
+    permissions:
+      all: allow
+
+- extendedWaitUntil:
+    visible:
+      text: "JobHunter AI"
+    timeout: 15000
+
+# Navigate to signup
+- tapOn:
+    text: "Sign Up"
+    label: "Go to signup screen"
+
+- extendedWaitUntil:
+    visible:
+      text: "Join JobHunter AI"
+    timeout: 5000
+
+- assertVisible:
+    text: "Start your smart job search journey"
+    label: "Signup subtitle visible"
+
+- takeScreenshot: "signup_screen"
+
+# Fill signup form
+- tapOn:
+    text: "Email"
+    index: 0
+    label: "Tap email field"
+- inputText: ${EMAIL}
+- hideKeyboard
+
+- tapOn:
+    text: "Password"
+    index: 0
+    label: "Tap password field"
+- inputText: ${PASSWORD}
+- hideKeyboard
+
+- tapOn:
+    text: "Confirm Password"
+    label: "Tap confirm password field"
+- inputText: ${PASSWORD}
+- hideKeyboard
+
+- takeScreenshot: "signup_filled"
+
+- tapOn:
+    text: "Create Account with Email"
+    label: "Submit signup"
+
+# Should navigate to onboarding
+- extendedWaitUntil:
+    visible:
+      text: "Tell us about yourself"
+    timeout: 10000
+    label: "Wait for onboarding screen"
+
+- takeScreenshot: "onboarding_page1"
+
+- assertVisible:
+    text: "This helps us match you with the best jobs."
+    label: "Onboarding subtitle visible"

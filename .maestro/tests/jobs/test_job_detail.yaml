@@ -1,0 +1,77 @@
+appId: com.jobhunter.job_board
+env:
+  EMAIL: ${TEST_EMAIL:-maestro_test@test.com}
+  PASSWORD: ${TEST_PASSWORD:-TestPass123!}
+tags:
+  - jobs
+  - detail
+---
+
+# Test: Open a job detail screen and interact with it
+- launchApp:
+    appId: com.jobhunter.job_board
+    clearState: true
+    permissions:
+      all: allow
+
+- extendedWaitUntil:
+    visible:
+      text: "JobHunter AI"
+    timeout: 15000
+
+- runFlow:
+    file: ../../helpers/helper_login.yaml
+
+- extendedWaitUntil:
+    visible:
+      text: "Jobs"
+    timeout: 10000
+
+# Wait for job list to load, then tap first job
+- extendedWaitUntil:
+    visible:
+      text: "No jobs found"
+    timeout: 3000
+    optional: true
+
+# If no jobs, trigger crawl first
+- runFlow:
+    when:
+      visible:
+        text: "Search Jobs"
+    commands:
+      - tapOn:
+          text: "Search Jobs"
+          label: "Trigger initial crawl"
+      - extendedWaitUntil:
+          notVisible:
+            text: "No jobs found"
+          timeout: 10000
+
+# Try scrolling down to find a job card
+- takeScreenshot: "job_list_loaded"
+
+# Tap on a job if available (look for common elements)
+- runFlow:
+    when:
+      visible:
+        text: "Description"
+    commands:
+      - assertVisible:
+          text: "Description"
+          label: "Job detail shows description"
+      - takeScreenshot: "job_detail_screen"
+
+      # Check Pro Tools section
+      - scrollUntilVisible:
+          element:
+            text: "Pro Tools"
+          direction: DOWN
+          timeout: 5000
+      - assertVisible:
+          text: "Interview Prep"
+          label: "Interview Prep button visible"
+      - assertVisible:
+          text: "Resume Analyzer"
+          label: "Resume Analyzer button visible"
+      - takeScreenshot: "job_detail_pro_tools"

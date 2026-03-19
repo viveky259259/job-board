@@ -1,0 +1,151 @@
+appId: com.jobhunter.job_board
+env:
+  EMAIL: ${TEST_EMAIL:-maestro_onboard@test.com}
+  PASSWORD: ${TEST_PASSWORD:-TestPass123!}
+tags:
+  - auth
+  - onboarding
+  - critical
+---
+
+# Test: Complete onboarding flow (3 pages)
+- launchApp:
+    appId: com.jobhunter.job_board
+    clearState: true
+    permissions:
+      all: allow
+
+- extendedWaitUntil:
+    visible:
+      text: "JobHunter AI"
+    timeout: 15000
+
+# Sign up first
+- tapOn:
+    text: "Sign Up"
+- extendedWaitUntil:
+    visible:
+      text: "Join JobHunter AI"
+    timeout: 5000
+
+- tapOn:
+    text: "Email"
+    index: 0
+- evalScript: |
+    const ts = Date.now();
+    output.email = `maestro_${ts}@test.com`;
+- inputText: ${output.email}
+- hideKeyboard
+
+- tapOn:
+    text: "Password"
+    index: 0
+- inputText: ${PASSWORD}
+- hideKeyboard
+
+- tapOn:
+    text: "Confirm Password"
+- inputText: ${PASSWORD}
+- hideKeyboard
+
+- tapOn:
+    text: "Create Account with Email"
+
+# --- Onboarding Page 1: Basic Info ---
+- extendedWaitUntil:
+    visible:
+      text: "Tell us about yourself"
+    timeout: 10000
+
+- assertVisible:
+    text: "This helps us match you with the best jobs."
+
+- tapOn:
+    text: "Full Name"
+- inputText: "Maestro Tester"
+- hideKeyboard
+
+- tapOn:
+    text: "Professional Headline"
+- inputText: "Senior Flutter Developer"
+- hideKeyboard
+
+- tapOn:
+    text: "Professional Summary"
+- inputText: "Experienced developer with 5 years in mobile development."
+- hideKeyboard
+
+- takeScreenshot: "onboarding_page1_filled"
+
+- tapOn:
+    text: "Continue"
+    label: "Go to skills page"
+
+# --- Onboarding Page 2: Skills ---
+- extendedWaitUntil:
+    visible:
+      text: "Your Skills"
+    timeout: 5000
+
+- assertVisible:
+    text: "Add your key skills for better job matching."
+
+- tapOn:
+    text: "Add a skill"
+- inputText: "Flutter"
+- hideKeyboard
+
+# Tap the add button (IconButton.filled with + icon)
+- tapOn:
+    text: "Add a skill"
+- inputText: "Dart"
+- hideKeyboard
+
+- tapOn:
+    text: "Add a skill"
+- inputText: "Firebase"
+- hideKeyboard
+
+- takeScreenshot: "onboarding_page2_skills"
+
+- tapOn:
+    text: "Continue"
+    label: "Go to preferences page"
+
+# --- Onboarding Page 3: Job Preferences ---
+- extendedWaitUntil:
+    visible:
+      text: "Job Preferences"
+    timeout: 5000
+
+- assertVisible:
+    text: "What kind of jobs are you looking for?"
+
+# Select work style
+- tapOn:
+    text: "Remote"
+    label: "Select Remote work style"
+
+# Select job type
+- tapOn:
+    text: "Full-time"
+    label: "Select Full-time job type"
+
+- takeScreenshot: "onboarding_page3_preferences"
+
+- tapOn:
+    text: "Get Started"
+    label: "Complete onboarding"
+
+# --- Should land on Home screen ---
+- extendedWaitUntil:
+    visible:
+      text: "Jobs"
+    timeout: 10000
+    label: "Wait for home screen"
+
+- takeScreenshot: "home_after_onboarding"
+
+- assertVisible:
+    text: "Jobs"
+    label: "Jobs tab visible on home"

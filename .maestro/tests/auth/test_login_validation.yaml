@@ -1,0 +1,60 @@
+appId: com.jobhunter.job_board
+tags:
+  - auth
+  - validation
+---
+
+# Test: Login form validation
+- launchApp:
+    appId: com.jobhunter.job_board
+    clearState: true
+
+- extendedWaitUntil:
+    visible:
+      text: "JobHunter AI"
+    timeout: 15000
+
+# Try to login with empty fields
+- tapOn:
+    text: "Sign In with Email"
+    label: "Submit empty form"
+
+- assertVisible:
+    text: "Email is required"
+    label: "Email validation error shows"
+
+# Enter invalid email
+- tapOn:
+    text: "Email"
+    index: 0
+- inputText: "notanemail"
+- hideKeyboard
+- tapOn:
+    text: "Sign In with Email"
+
+- assertVisible:
+    text: "Enter a valid email"
+    label: "Invalid email error shows"
+
+# Enter valid email but short password
+- tapOn:
+    text: "Email"
+    index: 0
+- clearText
+- inputText: "test@test.com"
+- hideKeyboard
+
+- tapOn:
+    text: "Password"
+    index: 0
+- inputText: "123"
+- hideKeyboard
+
+- tapOn:
+    text: "Sign In with Email"
+
+- assertVisible:
+    text: "At least 6 characters"
+    label: "Password length validation shows"
+
+- takeScreenshot: "login_validation_errors"

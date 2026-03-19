@@ -1,0 +1,57 @@
+# Helper: Complete onboarding flow
+# Expects to be on the onboarding screen (page 1)
+- extendedWaitUntil:
+    visible:
+      text: "Tell us about yourself"
+    timeout: 5000
+
+# Page 1: Basic info
+- tapOn:
+    text: "Full Name"
+    label: "Tap name field"
+- inputText: "Test User"
+- hideKeyboard
+- tapOn:
+    text: "Professional Headline"
+    label: "Tap headline field"
+- inputText: "Flutter Developer"
+- hideKeyboard
+- tapOn:
+    text: "Continue"
+    label: "Go to skills page"
+
+# Page 2: Skills
+- extendedWaitUntil:
+    visible:
+      text: "Your Skills"
+    timeout: 3000
+- tapOn:
+    text: "Add a skill"
+    label: "Tap skill input"
+- inputText: "Flutter"
+- hideKeyboard
+- tapOn:
+    id: "add-skill-btn"
+    optional: true
+    label: "Add skill via button"
+- runFlow:
+    when:
+      visible:
+        text: "Add a skill"
+    commands:
+      - tapOn:
+          text: "Add a skill"
+      - inputText: "Dart"
+      - hideKeyboard
+- tapOn:
+    text: "Continue"
+    label: "Go to preferences page"
+
+# Page 3: Preferences
+- extendedWaitUntil:
+    visible:
+      text: "Job Preferences"
+    timeout: 3000
+- tapOn:
+    text: "Get Started"
+    label: "Finish onboarding"

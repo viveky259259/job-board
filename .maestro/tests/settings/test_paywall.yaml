@@ -1,0 +1,102 @@
+appId: com.jobhunter.job_board
+env:
+  EMAIL: ${TEST_EMAIL:-maestro_test@test.com}
+  PASSWORD: ${TEST_PASSWORD:-TestPass123!}
+tags:
+  - settings
+  - paywall
+---
+
+# Test: Paywall screen — verify subscription tiers and pricing
+- launchApp:
+    appId: com.jobhunter.job_board
+    clearState: true
+    permissions:
+      all: allow
+
+- extendedWaitUntil:
+    visible:
+      text: "JobHunter AI"
+    timeout: 15000
+
+- runFlow:
+    file: ../../helpers/helper_login.yaml
+
+- extendedWaitUntil:
+    visible:
+      text: "Jobs"
+    timeout: 10000
+
+# Navigate to Settings → Upgrade
+- tapOn:
+    text: "Settings"
+    label: "Go to Settings"
+
+- extendedWaitUntil:
+    visible:
+      text: "Settings"
+    timeout: 5000
+
+- tapOn:
+    text: "Upgrade to Pro"
+    label: "Open paywall"
+
+- extendedWaitUntil:
+    visible:
+      text: "Upgrade"
+    timeout: 5000
+
+- takeScreenshot: "paywall_screen"
+
+# Check billing toggle
+- assertVisible:
+    text: "Monthly"
+    label: "Monthly billing option visible"
+
+- assertVisible:
+    text: "Yearly"
+    label: "Yearly billing option visible"
+
+- assertVisible:
+    text: "Save 33%"
+    label: "Yearly discount visible"
+
+# Check plan cards
+- assertVisible:
+    text: "Pro"
+    label: "Pro plan visible"
+
+- assertVisible:
+    text: "POPULAR"
+    label: "Popular badge visible"
+
+# Check pricing
+- assertVisible:
+    text: "$14.99"
+    label: "Pro monthly price visible"
+
+# Scroll to feature comparison
+- scrollUntilVisible:
+    element:
+      text: "Compare Plans"
+    direction: DOWN
+    timeout: 5000
+
+- assertVisible:
+    text: "Compare Plans"
+    label: "Plan comparison table visible"
+
+- takeScreenshot: "paywall_comparison"
+
+# Check cancel text
+- scrollUntilVisible:
+    element:
+      text: "Cancel anytime. No questions asked."
+    direction: DOWN
+    timeout: 3000
+
+- assertVisible:
+    text: "Cancel anytime. No questions asked."
+    label: "Cancel policy visible"
+
+- takeScreenshot: "paywall_complete"

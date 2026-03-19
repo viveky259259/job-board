@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:job_board/firebase_options.dart';
@@ -10,4 +11,5 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   runApp(const ProviderScope(child: JobHunterApp()));
+  SemanticsBinding.instance.ensureSemantics();
 }

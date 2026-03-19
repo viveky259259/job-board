@@ -1,0 +1,5 @@
+onFlowComplete:
+  - takeScreenshot: "flow_complete"
+
+executionOrder:
+  continueOnFailure: false

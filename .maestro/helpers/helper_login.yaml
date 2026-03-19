@@ -1,0 +1,21 @@
+# Helper: Login with email
+# Expects to be on the login screen
+- extendedWaitUntil:
+    visible:
+      text: "JobHunter AI"
+    timeout: 10000
+- tapOn:
+    text: "Email"
+    index: 0
+    label: "Tap email field"
+- inputText: ${EMAIL}
+- hideKeyboard
+- tapOn:
+    text: "Password"
+    index: 0
+    label: "Tap password field"
+- inputText: ${PASSWORD}
+- hideKeyboard
+- tapOn:
+    text: "Sign In with Email"
+    label: "Submit login form"

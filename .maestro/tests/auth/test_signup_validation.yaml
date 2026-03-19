@@ -1,0 +1,51 @@
+appId: com.jobhunter.job_board
+tags:
+  - auth
+  - validation
+---
+
+# Test: Signup form validation (password mismatch)
+- launchApp:
+    appId: com.jobhunter.job_board
+    clearState: true
+
+- extendedWaitUntil:
+    visible:
+      text: "JobHunter AI"
+    timeout: 15000
+
+- tapOn:
+    text: "Sign Up"
+    label: "Go to signup"
+
+- extendedWaitUntil:
+    visible:
+      text: "Join JobHunter AI"
+    timeout: 5000
+
+# Fill with mismatched passwords
+- tapOn:
+    text: "Email"
+    index: 0
+- inputText: "test@test.com"
+- hideKeyboard
+
+- tapOn:
+    text: "Password"
+    index: 0
+- inputText: "TestPass123!"
+- hideKeyboard
+
+- tapOn:
+    text: "Confirm Password"
+- inputText: "DifferentPass!"
+- hideKeyboard
+
+- tapOn:
+    text: "Create Account with Email"
+
+- assertVisible:
+    text: "Passwords do not match"
+    label: "Password mismatch error shows"
+
+- takeScreenshot: "signup_password_mismatch"

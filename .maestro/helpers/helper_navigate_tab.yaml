@@ -1,0 +1,9 @@
+# Helper: Navigate to a specific tab
+# Uses env var TAB_NAME (Jobs, Tracker, Progress, Profile, Settings)
+- tapOn:
+    text: ${TAB_NAME}
+    label: "Navigate to ${TAB_NAME} tab"
+- extendedWaitUntil:
+    visible:
+      text: ${TAB_NAME}
+    timeout: 3000

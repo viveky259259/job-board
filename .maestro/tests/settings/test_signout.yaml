@@ -1,0 +1,75 @@
+appId: com.jobhunter.job_board
+env:
+  EMAIL: ${TEST_EMAIL:-maestro_test@test.com}
+  PASSWORD: ${TEST_PASSWORD:-TestPass123!}
+tags:
+  - auth
+  - signout
+---
+
+# Test: Sign out from Settings
+- launchApp:
+    appId: com.jobhunter.job_board
+    clearState: true
+    permissions:
+      all: allow
+
+- extendedWaitUntil:
+    visible:
+      text: "JobHunter AI"
+    timeout: 15000
+
+- runFlow:
+    file: ../../helpers/helper_login.yaml
+
+- extendedWaitUntil:
+    visible:
+      text: "Jobs"
+    timeout: 10000
+
+# Navigate to Settings
+- tapOn:
+    text: "Settings"
+    label: "Go to Settings"
+
+- extendedWaitUntil:
+    visible:
+      text: "Settings"
+    timeout: 5000
+
+# Scroll to Sign Out
+- scrollUntilVisible:
+    element:
+      text: "Sign Out"
+    direction: DOWN
+    timeout: 5000
+
+- tapOn:
+    text: "Sign Out"
+    label: "Tap sign out"
+
+# Confirm dialog
+- extendedWaitUntil:
+    visible:
+      text: "Are you sure you want to sign out?"
+    timeout: 3000
+
+- takeScreenshot: "signout_confirmation"
+
+- tapOn:
+    text: "Sign Out"
+    index: 1
+    label: "Confirm sign out"
+
+# Should return to login screen
+- extendedWaitUntil:
+    visible:
+      text: "JobHunter AI"
+    timeout: 10000
+    label: "Back on login screen"
+
+- assertVisible:
+    text: "Sign In with Email"
+    label: "Login form visible after signout"
+
+- takeScreenshot: "after_signout"

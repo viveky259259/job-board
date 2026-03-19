@@ -1,0 +1,84 @@
+appId: com.jobhunter.job_board
+env:
+  EMAIL: ${TEST_EMAIL:-maestro_test@test.com}
+  PASSWORD: ${TEST_PASSWORD:-TestPass123!}
+tags:
+  - navigation
+  - smoke
+---
+
+# Test: Navigate through all 5 bottom tabs
+- launchApp:
+    appId: com.jobhunter.job_board
+    clearState: true
+    permissions:
+      all: allow
+
+- extendedWaitUntil:
+    visible:
+      text: "JobHunter AI"
+    timeout: 15000
+
+# Login first
+- runFlow:
+    file: ../../helpers/helper_login.yaml
+
+- extendedWaitUntil:
+    visible:
+      text: "Jobs"
+    timeout: 10000
+
+# Tab 1: Jobs (already active)
+- assertVisible:
+    text: "Jobs"
+    label: "Jobs tab is active"
+- takeScreenshot: "tab_jobs"
+
+# Tab 2: Tracker
+- tapOn:
+    text: "Tracker"
+    label: "Switch to Tracker tab"
+- extendedWaitUntil:
+    visible:
+      text: "Application Tracker"
+    timeout: 5000
+- takeScreenshot: "tab_tracker"
+
+# Tab 3: Progress
+- tapOn:
+    text: "Progress"
+    label: "Switch to Progress tab"
+- extendedWaitUntil:
+    visible:
+      text: "Progress"
+    timeout: 5000
+- takeScreenshot: "tab_progress"
+
+# Tab 4: Profile
+- tapOn:
+    text: "Profile"
+    label: "Switch to Profile tab"
+- extendedWaitUntil:
+    visible:
+      text: "Profile"
+    timeout: 5000
+- takeScreenshot: "tab_profile"
+
+# Tab 5: Settings
+- tapOn:
+    text: "Settings"
+    label: "Switch to Settings tab"
+- extendedWaitUntil:
+    visible:
+      text: "Settings"
+    timeout: 5000
+- takeScreenshot: "tab_settings"
+
+# Navigate back to Jobs
+- tapOn:
+    text: "Jobs"
+    label: "Switch back to Jobs tab"
+- extendedWaitUntil:
+    visible:
+      text: "Jobs"
+    timeout: 3000

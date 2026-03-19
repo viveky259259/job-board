@@ -1,0 +1,51 @@
+appId: com.jobhunter.job_board
+env:
+  EMAIL: ${TEST_EMAIL:-maestro_test@test.com}
+  PASSWORD: ${TEST_PASSWORD:-TestPass123!}
+tags:
+  - jobs
+  - browsing
+---
+
+# Test: Browse jobs, use search, toggle filters
+- launchApp:
+    appId: com.jobhunter.job_board
+    clearState: true
+    permissions:
+      all: allow
+
+- extendedWaitUntil:
+    visible:
+      text: "JobHunter AI"
+    timeout: 15000
+
+- runFlow:
+    file: ../../helpers/helper_login.yaml
+
+- extendedWaitUntil:
+    visible:
+      text: "Jobs"
+    timeout: 10000
+
+# Search for jobs
+- tapOn:
+    text: "Search jobs, companies, locations..."
+    label: "Tap search field"
+- inputText: "Flutter"
+- hideKeyboard
+- takeScreenshot: "jobs_search_flutter"
+
+# Clear search
+- tapOn:
+    text: "Search jobs, companies, locations..."
+    label: "Tap search to clear"
+- clearText
+- hideKeyboard
+
+# Trigger job crawl
+- tapOn:
+    text: "Find new jobs"
+    optional: true
+    label: "Refresh jobs"
+
+- takeScreenshot: "jobs_after_refresh"

@@ -1,0 +1,44 @@
+appId: com.jobhunter.job_board
+tags:
+  - smoke
+  - critical
+---
+
+# Smoke test: App launches and shows login screen
+- launchApp:
+    appId: com.jobhunter.job_board
+    clearState: true
+    permissions:
+      all: allow
+
+- extendedWaitUntil:
+    visible:
+      text: "JobHunter AI"
+    timeout: 15000
+    label: "Wait for app to load"
+
+- assertVisible:
+    text: "JobHunter AI"
+    label: "App name is visible"
+
+- assertVisible:
+    text: "Your agentic job search companion"
+    label: "Tagline is visible"
+
+- assertVisible:
+    text: "Continue with Google"
+    label: "Google sign-in button visible"
+
+- assertVisible:
+    text: "Continue with GitHub"
+    label: "GitHub sign-in button visible"
+
+- assertVisible:
+    text: "Sign In with Email"
+    label: "Email sign-in button visible"
+
+- assertVisible:
+    text: "Sign Up"
+    label: "Sign up link visible"
+
+- takeScreenshot: "smoke_login_screen"
