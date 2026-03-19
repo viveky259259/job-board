@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -41,12 +42,19 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       if (mounted) context.go('/onboarding');
     } catch (e) {
       setState(() {
-        if (e.toString().contains('email-already-in-use')) {
+        final msg = e.toString();
+        if (msg.contains('email-already-in-use')) {
           _error = 'An account already exists with this email.';
-        } else if (e.toString().contains('weak-password')) {
+        } else if (msg.contains('weak-password')) {
           _error = 'Password is too weak. Use at least 6 characters.';
+        } else if (msg.contains('invalid-email')) {
+          _error = 'Invalid email address.';
+        } else if (msg.contains('network-request-failed')) {
+          _error = 'Network error. Check your connection.';
+        } else if (msg.contains('operation-not-allowed')) {
+          _error = 'Email/password signup is not enabled. Please contact support.';
         } else {
-          _error = 'Sign up failed. Please try again.';
+          _error = 'Sign up failed: ${e is FirebaseAuthException ? e.message : msg}';
         }
       });
     } finally {

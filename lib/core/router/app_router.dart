@@ -25,11 +25,16 @@ final routerProvider = Provider<GoRouter>((ref) {
     initialLocation: '/',
     redirect: (context, state) {
       final isLoggedIn = authState.value != null;
-      final isAuthRoute = state.matchedLocation == '/login' ||
-          state.matchedLocation == '/signup';
+      final loc = state.matchedLocation;
+      final isAuthRoute = loc == '/login' || loc == '/signup';
+      final isOnboarding = loc == '/onboarding';
 
       if (!isLoggedIn && !isAuthRoute) return '/login';
-      if (isLoggedIn && isAuthRoute) return '/';
+      // Only redirect from /login to home — /signup redirect is handled
+      // by the signup handler itself (navigates to /onboarding)
+      if (isLoggedIn && loc == '/login') return '/';
+      // Allow /signup and /onboarding for logged-in users
+      if (!isLoggedIn && isOnboarding) return '/login';
       return null;
     },
     routes: [

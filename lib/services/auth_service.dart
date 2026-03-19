@@ -22,7 +22,12 @@ class AuthService {
       password: password,
     );
     if (credential.user != null) {
-      await _createUserProfile(credential.user!);
+      try {
+        await _createUserProfile(credential.user!);
+      } catch (_) {
+        // Profile creation is non-critical; the user is already authenticated.
+        // Profile will be created on next launch if it doesn't exist.
+      }
     }
     return credential;
   }
@@ -43,7 +48,9 @@ class AuthService {
         : await _auth.signInWithProvider(provider);
 
     if (credential.user != null) {
-      await _createUserProfile(credential.user!);
+      try {
+        await _createUserProfile(credential.user!);
+      } catch (_) {}
     }
     return credential;
   }
@@ -60,7 +67,9 @@ class AuthService {
         : await _auth.signInWithProvider(provider);
 
     if (credential.user != null) {
-      await _createUserProfile(credential.user!);
+      try {
+        await _createUserProfile(credential.user!);
+      } catch (_) {}
     }
     return credential;
   }
