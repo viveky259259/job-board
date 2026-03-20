@@ -4,7 +4,32 @@ import 'package:sub_zero_design_system/sub_zero_design_system.dart';
 class AppTheme {
   AppTheme._();
 
-  static ThemeData get lightTheme => SubZeroTheme.lightTheme;
+  static ThemeData get lightTheme {
+    final base = SubZeroTheme.lightTheme;
+    return base.copyWith(
+      inputDecorationTheme: base.inputDecorationTheme.copyWith(
+        errorBorder: OutlineInputBorder(
+          borderRadius: SubZeroRadius.medium,
+          borderSide: BorderSide(color: SubZeroColors.error),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: SubZeroRadius.medium,
+          borderSide: BorderSide(color: SubZeroColors.error, width: 2),
+        ),
+        errorStyle: TextStyle(color: SubZeroColors.error),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: SubZeroColors.primary,
+          foregroundColor: Colors.white,
+          minimumSize: const Size(double.infinity, 52),
+          shape: RoundedRectangleBorder(
+            borderRadius: SubZeroRadius.medium,
+          ),
+        ),
+      ),
+    );
+  }
   static ThemeData get darkTheme => _buildDarkTheme();
 
   static const Color successColor = Color(0xFF28A745);
