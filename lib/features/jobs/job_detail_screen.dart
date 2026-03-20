@@ -29,7 +29,9 @@ class JobDetailScreen extends ConsumerStatefulWidget {
 class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
   Job? _job;
   bool _isLoading = true;
+  String? _error;
   Application? _application;
+  bool _isSaving = false;
 
   @override
   void initState() {
@@ -38,34 +40,46 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
   }
 
   Future<void> _loadJob() async {
-    final jobService = ref.read(jobServiceProvider);
-    final job = await jobService.getJob(widget.jobId);
-    final user = ref.read(currentUserProvider);
+    try {
+      final jobService = ref.read(jobServiceProvider);
+      final job = await jobService.getJob(widget.jobId);
+      final user = ref.read(currentUserProvider);
 
-    Application? app;
-    if (user != null) {
-      app = await ref.read(applicationServiceProvider).getApplicationForJob(user.uid, widget.jobId);
-    }
+      Application? app;
+      if (user != null) {
+        try {
+          app = await ref.read(applicationServiceProvider).getApplicationForJob(user.uid, widget.jobId);
+        } catch (_) {}
+      }
 
-    if (mounted) {
-      final profile = ref.read(profileProvider);
-      setState(() {
-        if (job != null && profile != null) {
-          final score = JobService.calculateMatchScore(job, profile);
-          _job = job.copyWith(matchScore: score);
-        } else {
-          _job = job;
-        }
-        _application = app;
-        _isLoading = false;
-      });
+      if (mounted) {
+        final profile = ref.read(profileProvider);
+        setState(() {
+          if (job != null && profile != null) {
+            final score = JobService.calculateMatchScore(job, profile);
+            _job = job.copyWith(matchScore: score);
+          } else {
+            _job = job;
+          }
+          _application = app;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = 'Failed to load job. Check your connection.';
+          _isLoading = false;
+        });
+      }
     }
   }
 
   Future<void> _saveJob() async {
     final user = ref.read(currentUserProvider);
-    if (user == null || _job == null) return;
+    if (user == null || _job == null || _isSaving) return;
 
+    setState(() => _isSaving = true);
     try {
       final app = await ref.read(applicationServiceProvider).saveJob(
             userId: user.uid,
@@ -76,12 +90,13 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
           );
 
       if (!mounted) return;
-      setState(() => _application = app);
+      setState(() { _application = app; _isSaving = false; });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Job saved!')),
       );
     } catch (_) {
       if (!mounted) return;
+      setState(() => _isSaving = false);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Failed to save job.')),
       );
@@ -117,21 +132,64 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
     }
   }
 
+  Future<void> _openExternalUrl(String? url) async {
+    if (url == null || url.isEmpty) return;
+    try {
+      final uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Could not open link.')),
+          );
+        }
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Invalid URL.')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     if (_isLoading) {
       return Scaffold(
-        appBar: AppBar(),
+        appBar: AppBar(leading: _backButton()),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
 
-    if (_job == null) {
+    if (_error != null || _job == null) {
       return Scaffold(
-        appBar: AppBar(),
-        body: const Center(child: Text('Job not found')),
+        appBar: AppBar(leading: _backButton()),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.error_outline, size: 48, color: Colors.grey),
+                const SizedBox(height: 12),
+                Text(_error ?? 'Job not found', style: theme.textTheme.titleMedium),
+                const SizedBox(height: 8),
+                Text('This job may have been removed or the link is invalid.',
+                    style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                    textAlign: TextAlign.center),
+                const SizedBox(height: 16),
+                OutlinedButton(
+                  onPressed: _loadJob,
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
+          ),
+        ),
       );
     }
 
@@ -139,15 +197,13 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
-        ),
+        leading: _backButton(),
         actions: [
-          if (job.sourceUrl != null)
+          if (job.sourceUrl != null && job.sourceUrl!.isNotEmpty)
             IconButton(
               icon: const Icon(Icons.open_in_new),
-              onPressed: () => launchUrl(Uri.parse(job.sourceUrl!)),
+              onPressed: () => _openExternalUrl(job.sourceUrl),
+              tooltip: 'View original listing',
             ),
         ],
       ),
@@ -156,6 +212,27 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (job.isExpired)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.warning_amber, color: Colors.orange, size: 20),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text('This job listing may have expired.',
+                          style: theme.textTheme.bodySmall?.copyWith(color: Colors.orange[800])),
+                    ),
+                  ],
+                ),
+              ),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -189,6 +266,8 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
                   _infoChip(theme, Icons.attach_money, job.salaryRange),
                 if (job.postedAt != null)
                   _infoChip(theme, Icons.schedule, timeago.format(job.postedAt!)),
+                if (job.source != 'manual' && job.source != 'demo')
+                  _infoChip(theme, Icons.source, job.source.toUpperCase()),
               ],
             ),
             const SizedBox(height: 24),
@@ -196,9 +275,29 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
               _matchBreakdown(theme, job, ref.watch(currentTierProvider)),
               const SizedBox(height: 24),
             ],
-            Text('Description', style: theme.textTheme.titleMedium),
-            const SizedBox(height: 8),
-            Text(job.description, style: theme.textTheme.bodyMedium),
+            if (job.description.isNotEmpty) ...[
+              Text('Description', style: theme.textTheme.titleMedium),
+              const SizedBox(height: 8),
+              Text(job.description, style: theme.textTheme.bodyMedium?.copyWith(height: 1.5)),
+            ] else ...[
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.info_outline, size: 18, color: theme.colorScheme.onSurfaceVariant),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text('No description available. View the original listing for details.',
+                          style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                    ),
+                  ],
+                ),
+              ),
+            ],
             if (job.requirements.isNotEmpty) ...[
               const SizedBox(height: 24),
               Text('Requirements', style: theme.textTheme.titleMedium),
@@ -208,8 +307,7 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.check_circle_outline,
-                            size: 18, color: AppTheme.successColor),
+                        Icon(Icons.check_circle_outline, size: 18, color: AppTheme.successColor),
                         const SizedBox(width: 8),
                         Expanded(child: Text(req)),
                       ],
@@ -225,54 +323,77 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              if (_application == null)
-                Expanded(
-                  child: FilledButton.icon(
-                    onPressed: _saveJob,
-                    icon: const Icon(Icons.bookmark_border),
-                    label: const Text('Save Job'),
-                  ),
-                )
-              else if (_application!.status == ApplicationStatus.saved) ...[
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: _markApplied,
-                    icon: const Icon(Icons.send),
-                    label: const Text('Mark Applied'),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: FilledButton.icon(
-                    onPressed: () =>
-                        context.go('/cover-letter/${job.id}'),
-                    icon: const Icon(Icons.edit_document),
-                    label: const Text('Cover Letter'),
-                  ),
-                ),
-              ] else
-                Expanded(
-                  child: FilledButton.icon(
-                    onPressed: () =>
-                        context.go('/cover-letter/${job.id}'),
-                    icon: const Icon(Icons.edit_document),
-                    label: Text(
-                        'Status: ${_application!.status.label}'),
-                  ),
-                ),
-            ],
-          ),
+          child: _buildBottomActions(job),
         ),
       ),
+    );
+  }
+
+  Widget _buildBottomActions(Job job) {
+    if (job.isExpired) {
+      return OutlinedButton.icon(
+        onPressed: () => _openExternalUrl(job.sourceUrl),
+        icon: const Icon(Icons.open_in_new),
+        label: const Text('View Original (Expired)'),
+      );
+    }
+
+    if (_application == null) {
+      return FilledButton.icon(
+        onPressed: _isSaving ? null : _saveJob,
+        icon: _isSaving
+            ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+            : const Icon(Icons.bookmark_border),
+        label: Text(_isSaving ? 'Saving...' : 'Save Job'),
+      );
+    }
+
+    if (_application!.status == ApplicationStatus.saved) {
+      return Row(
+        children: [
+          Expanded(
+            child: OutlinedButton.icon(
+              onPressed: _markApplied,
+              icon: const Icon(Icons.send),
+              label: const Text('Mark Applied'),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: FilledButton.icon(
+              onPressed: () => context.go('/cover-letter/${_job!.id}'),
+              icon: const Icon(Icons.edit_document),
+              label: const Text('Cover Letter'),
+            ),
+          ),
+        ],
+      );
+    }
+
+    return FilledButton.icon(
+      onPressed: () => context.go('/cover-letter/${_job!.id}'),
+      icon: const Icon(Icons.edit_document),
+      label: Text('Status: ${_application!.status.label}'),
+    );
+  }
+
+  Widget _backButton() {
+    return IconButton(
+      icon: const Icon(Icons.arrow_back),
+      onPressed: () {
+        if (Navigator.of(context).canPop()) {
+          context.pop();
+        } else {
+          context.go('/');
+        }
+      },
     );
   }
 
   Widget _infoChip(ThemeData theme, IconData icon, String label) {
     return Chip(
       avatar: Icon(icon, size: 16),
-      label: Text(label),
+      label: Text(label, overflow: TextOverflow.ellipsis),
       visualDensity: VisualDensity.compact,
     );
   }
@@ -414,10 +535,10 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
               Icon(icon, size: 20, color: theme.colorScheme.primary),
               const SizedBox(width: 8),
               Expanded(
-                child: Text(label, style: theme.textTheme.labelMedium),
+                child: Text(label, style: theme.textTheme.labelMedium,
+                    overflow: TextOverflow.ellipsis),
               ),
-              Icon(Icons.chevron_right,
-                  size: 18, color: theme.colorScheme.onSurfaceVariant),
+              Icon(Icons.chevron_right, size: 18, color: theme.colorScheme.onSurfaceVariant),
             ],
           ),
         ),
