@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sub_zero_design_system/sub_zero_design_system.dart';
 import 'package:job_board/models/achievement.dart';
 
 class AchievementBadge extends StatelessWidget {
@@ -15,7 +16,6 @@ class AchievementBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final isUnlocked = achievement.isUnlocked;
 
     return GestureDetector(
@@ -29,18 +29,18 @@ class AchievementBadge extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: isUnlocked
-                  ? theme.colorScheme.primaryContainer
-                  : theme.colorScheme.surfaceContainerHighest,
+                  ? SubZeroColors.primary.withValues(alpha: 0.12)
+                  : SubZeroColors.border.withValues(alpha: 0.3),
               border: Border.all(
                 color: isUnlocked
-                    ? theme.colorScheme.primary
-                    : theme.colorScheme.outlineVariant,
+                    ? SubZeroColors.primary
+                    : SubZeroColors.border,
                 width: 2,
               ),
               boxShadow: isUnlocked
                   ? [
                       BoxShadow(
-                        color: theme.colorScheme.primary.withValues(alpha: 0.3),
+                        color: SubZeroColors.primary.withValues(alpha: 0.3),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -51,11 +51,11 @@ class AchievementBadge extends StatelessWidget {
               achievement.icon,
               size: size * 0.45,
               color: isUnlocked
-                  ? theme.colorScheme.primary
-                  : theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+                  ? SubZeroColors.primary
+                  : SubZeroColors.textSecondary.withValues(alpha: 0.4),
             ),
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: SubZeroSpacing.xs),
           SizedBox(
             width: size + 16,
             child: Text(
@@ -63,10 +63,11 @@ class AchievementBadge extends StatelessWidget {
               textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.labelSmall?.copyWith(
+              style: TextStyle(
+                fontSize: 11,
                 color: isUnlocked
-                    ? theme.colorScheme.onSurface
-                    : theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                    ? SubZeroColors.textPrimary
+                    : SubZeroColors.textSecondary.withValues(alpha: 0.5),
                 fontWeight: isUnlocked ? FontWeight.w600 : FontWeight.normal,
               ),
             ),

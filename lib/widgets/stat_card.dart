@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sub_zero_design_system/sub_zero_design_system.dart';
 
 class StatCard extends StatelessWidget {
   final String label;
@@ -19,42 +20,39 @@ class StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final cardColor = color ?? theme.colorScheme.primary;
+    final cardColor = color ?? SubZeroColors.primary;
 
-    return Card(
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: cardColor.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(icon, color: cardColor, size: 20),
+    return SubZeroCard(
+      onTap: onTap,
+      body: Padding(
+        padding: EdgeInsets.all(SubZeroSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: EdgeInsets.all(SubZeroSpacing.sm),
+              decoration: BoxDecoration(
+                color: cardColor.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(SubZeroRadius.sm),
               ),
-              const SizedBox(height: 12),
-              Text(
-                value,
-                style: theme.textTheme.headlineMedium?.copyWith(
-                  color: cardColor,
-                ),
+              child: Icon(icon, color: cardColor, size: 20),
+            ),
+            SizedBox(height: SubZeroSpacing.sm),
+            Text(
+              value,
+              style: theme.textTheme.headlineMedium?.copyWith(
+                color: cardColor,
               ),
-              const SizedBox(height: 2),
-              Text(
-                label,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
+            ),
+            SizedBox(height: SubZeroSpacing.xs),
+            Text(
+              label,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: SubZeroColors.textSecondary,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

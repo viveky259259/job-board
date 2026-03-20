@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sub_zero_design_system/sub_zero_design_system.dart';
 import 'package:job_board/models/user_profile.dart';
 
 class XpProgressBar extends StatelessWidget {
@@ -21,20 +22,29 @@ class XpProgressBar extends StatelessWidget {
       children: [
         if (showLabel)
           Padding(
-            padding: const EdgeInsets.only(bottom: 6),
+            padding: EdgeInsets.only(bottom: SubZeroSpacing.xs),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   'Level ${data.level} — ${data.levelName}',
                   style: theme.textTheme.labelLarge?.copyWith(
-                    color: theme.colorScheme.primary,
+                    color: SubZeroColors.primary,
                   ),
                 ),
-                Text(
-                  '${data.xp} XP',
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: SubZeroColors.primary.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(SubZeroRadius.xs),
+                  ),
+                  child: Text(
+                    '${data.xp} XP',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: SubZeroColors.primary,
+                    ),
                   ),
                 ),
               ],
@@ -45,19 +55,17 @@ class XpProgressBar extends StatelessWidget {
           child: LinearProgressIndicator(
             value: data.levelProgress,
             minHeight: height,
-            backgroundColor:
-                theme.colorScheme.primary.withValues(alpha: 0.12),
-            valueColor:
-                AlwaysStoppedAnimation(theme.colorScheme.primary),
+            backgroundColor: SubZeroColors.primary.withValues(alpha: 0.12),
+            valueColor: AlwaysStoppedAnimation(SubZeroColors.primary),
           ),
         ),
         if (showLabel && data.xpForNextLevel > 0)
           Padding(
-            padding: const EdgeInsets.only(top: 4),
+            padding: EdgeInsets.only(top: SubZeroSpacing.xs),
             child: Text(
               '${data.xpForNextLevel} XP to next level',
               style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
+                color: SubZeroColors.textSecondary,
               ),
             ),
           ),

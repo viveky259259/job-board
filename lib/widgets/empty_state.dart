@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sub_zero_design_system/sub_zero_design_system.dart';
 
 class EmptyState extends StatelessWidget {
   final IconData icon;
@@ -21,43 +22,45 @@ class EmptyState extends StatelessWidget {
     final theme = Theme.of(context);
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: EdgeInsets.all(SubZeroSpacing.xl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: EdgeInsets.all(SubZeroSpacing.lg),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: theme.colorScheme.primaryContainer.withValues(alpha: 0.5),
+                color: SubZeroColors.primary.withValues(alpha: 0.08),
               ),
               child: Icon(
                 icon,
                 size: 48,
-                color: theme.colorScheme.primary.withValues(alpha: 0.7),
+                color: SubZeroColors.primary.withValues(alpha: 0.7),
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: SubZeroSpacing.lg),
             Text(
               title,
               style: theme.textTheme.titleMedium,
               textAlign: TextAlign.center,
             ),
             if (subtitle != null) ...[
-              const SizedBox(height: 8),
+              SizedBox(height: SubZeroSpacing.sm),
               Text(
                 subtitle!,
                 style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
+                  color: SubZeroColors.textSecondary,
                 ),
                 textAlign: TextAlign.center,
               ),
             ],
             if (actionLabel != null && onAction != null) ...[
-              const SizedBox(height: 20),
-              FilledButton(
+              SizedBox(height: SubZeroSpacing.lg),
+              SubZeroButton(
+                label: actionLabel!,
+                variant: SubZeroButtonVariant.primary,
+                size: SubZeroButtonSize.medium,
                 onPressed: onAction,
-                child: Text(actionLabel!),
               ),
             ],
           ],
