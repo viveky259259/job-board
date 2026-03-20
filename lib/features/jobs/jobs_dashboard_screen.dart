@@ -81,10 +81,18 @@ class _JobsDashboardScreenState extends ConsumerState<JobsDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final jobsAsync = ref.watch(jobsStreamProvider);
     final jobs = ref.watch(filteredJobsProvider);
     final filter = ref.watch(jobFilterProvider);
     final applications = ref.watch(applicationsStreamProvider).value ?? [];
     final savedJobIds = applications.map((a) => a.jobId).toSet();
+
+    if (jobsAsync.isLoading) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Jobs')),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(

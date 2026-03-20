@@ -102,7 +102,10 @@ class ApplicationService {
         .map((snapshot) => snapshot.docs
             .map((doc) =>
                 Application.fromJson({...doc.data(), 'id': doc.id}))
-            .toList());
+            .toList())
+        .handleError((error) {
+      return <Application>[];
+    });
   }
 
   Future<List<Application>> getApplications(String userId) async {

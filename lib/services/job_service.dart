@@ -54,7 +54,11 @@ class JobService {
         .snapshots()
         .map((snapshot) => snapshot.docs
             .map((doc) => Job.fromJson({...doc.data(), 'id': doc.id}))
-            .toList());
+            .toList())
+        .handleError((error) {
+      // Return empty list on Firestore errors (missing index, permissions, etc.)
+      return <Job>[];
+    });
   }
 
   Future<void> triggerCrawl(JobPreferences preferences) async {

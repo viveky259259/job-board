@@ -10,7 +10,8 @@ final jobsStreamProvider = StreamProvider<List<Job>>((ref) {
 });
 
 final jobsWithScoresProvider = Provider<List<Job>>((ref) {
-  final jobs = ref.watch(jobsStreamProvider).value ?? [];
+  final jobsAsync = ref.watch(jobsStreamProvider);
+  final jobs = jobsAsync.whenData((data) => data).value ?? [];
   final profile = ref.watch(profileProvider);
   if (profile == null) return jobs;
 
