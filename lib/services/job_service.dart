@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:job_board/models/job.dart';
@@ -55,10 +56,12 @@ class JobService {
         .map((snapshot) => snapshot.docs
             .map((doc) => Job.fromJson({...doc.data(), 'id': doc.id}))
             .toList())
-        .handleError((error) {
-      // Return empty list on Firestore errors (missing index, permissions, etc.)
-      return <Job>[];
-    });
+        .transform(
+      StreamTransformer<List<Job>, List<Job>>.fromHandlers(
+        handleData: (data, sink) => sink.add(data),
+        handleError: (error, stackTrace, sink) => sink.add(<Job>[]),
+      ),
+    );
   }
 
   Future<void> triggerCrawl(JobPreferences preferences) async {

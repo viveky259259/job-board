@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:job_board/models/application.dart';
 import 'package:uuid/uuid.dart';
@@ -103,9 +104,12 @@ class ApplicationService {
             .map((doc) =>
                 Application.fromJson({...doc.data(), 'id': doc.id}))
             .toList())
-        .handleError((error) {
-      return <Application>[];
-    });
+        .transform(
+      StreamTransformer<List<Application>, List<Application>>.fromHandlers(
+        handleData: (data, sink) => sink.add(data),
+        handleError: (error, stackTrace, sink) => sink.add(<Application>[]),
+      ),
+    );
   }
 
   Future<List<Application>> getApplications(String userId) async {
