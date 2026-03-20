@@ -15,6 +15,7 @@ import 'package:job_board/features/resume_analyzer/resume_analyzer_screen.dart';
 import 'package:job_board/features/interview_prep/interview_prep_screen.dart';
 import 'package:job_board/features/interview_prep/interview_prep_landing.dart';
 import 'package:job_board/features/analytics/analytics_screen.dart';
+import 'package:job_board/features/follow_up/follow_up_screen.dart';
 import 'package:job_board/features/settings/settings_screen.dart';
 import 'package:job_board/features/paywall/paywall_screen.dart';
 
@@ -103,6 +104,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: 'settings',
             builder: (context, state) => const SettingsScreen(),
+          ),
+          GoRoute(
+            path: 'follow-ups',
+            builder: (context, state) => const FollowUpScreen(),
           ),
           GoRoute(
             path: 'upgrade',

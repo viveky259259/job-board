@@ -10,7 +10,12 @@ import 'package:job_board/providers/auth_provider.dart';
 import 'package:job_board/providers/job_provider.dart';
 import 'package:job_board/providers/profile_provider.dart';
 import 'package:job_board/providers/application_provider.dart';
+import 'package:job_board/providers/subscription_provider.dart';
+import 'package:job_board/models/subscription.dart';
 import 'package:job_board/services/job_service.dart';
+import 'package:job_board/features/paywall/paywall_screen.dart';
+import 'package:job_board/features/salary_insights/salary_insights_screen.dart';
+import 'package:job_board/features/company_research/company_research_screen.dart';
 import 'package:job_board/widgets/match_score_indicator.dart';
 
 class JobDetailScreen extends ConsumerStatefulWidget {
@@ -188,7 +193,7 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
             ),
             const SizedBox(height: 24),
             if (job.matchScore > 0) ...[
-              _matchBreakdown(theme, job),
+              _matchBreakdown(theme, job, ref.watch(currentTierProvider)),
               const SizedBox(height: 24),
             ],
             Text('Description', style: theme.textTheme.titleMedium),
@@ -272,8 +277,10 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
     );
   }
 
-  Widget _matchBreakdown(ThemeData theme, Job job) {
+  Widget _matchBreakdown(ThemeData theme, Job job, SubscriptionTier tier) {
     final color = AppTheme.matchScoreColor(job.matchScore);
+    final isPro = tier.hasFeature(ProFeature.matchBreakdown);
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -281,31 +288,75 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.auto_awesome, color: color),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${job.matchScore}% Match',
-                  style: theme.textTheme.titleSmall?.copyWith(color: color),
+          Row(
+            children: [
+              Icon(Icons.auto_awesome, color: color),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('${job.matchScore}% Match',
+                        style: theme.textTheme.titleSmall?.copyWith(color: color)),
+                    Text(
+                      job.matchScore >= 80
+                          ? 'Great fit for your profile!'
+                          : job.matchScore >= 60
+                              ? 'Good match with your skills'
+                              : 'Partial match — explore to learn more',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
                 ),
-                Text(
-                  job.matchScore >= 80
-                      ? 'Great fit for your profile!'
-                      : job.matchScore >= 60
-                          ? 'Good match with your skills'
-                          : 'Partial match — explore to learn more',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
+          if (isPro) ...[
+            const Divider(height: 20),
+            _breakdownRow(theme, 'Role Match', job.matchScore >= 60 ? 'Strong' : 'Partial', job.matchScore >= 60),
+            _breakdownRow(theme, 'Skills Overlap', '${(job.matchScore * 0.3).round()}%', job.matchScore >= 50),
+            _breakdownRow(theme, 'Location', job.location.toLowerCase().contains('remote') ? 'Match' : 'Partial', true),
+            _breakdownRow(theme, 'Job Type', 'Match', true),
+          ] else ...[
+            const SizedBox(height: 8),
+            GestureDetector(
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => const PaywallScreen(triggerFeature: ProFeature.matchBreakdown),
+              )),
+              child: Row(
+                children: [
+                  Icon(Icons.lock, size: 14, color: theme.colorScheme.onSurfaceVariant),
+                  const SizedBox(width: 4),
+                  Text('Upgrade to Pro for detailed breakdown',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.primary,
+                        fontWeight: FontWeight.w500,
+                      )),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _breakdownRow(ThemeData theme, String label, String value, bool isGood) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: theme.textTheme.bodySmall),
+          Text(value, style: theme.textTheme.bodySmall?.copyWith(
+            color: isGood ? AppTheme.successColor : Colors.orange,
+            fontWeight: FontWeight.w600,
+          )),
         ],
       ),
     );
@@ -320,21 +371,29 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
         Row(
           children: [
             Expanded(
-              child: _proButton(
-                theme,
-                icon: Icons.mic,
-                label: 'Interview Prep',
-                onTap: () => context.go('/interview-prep/${job.id}'),
-              ),
+              child: _proButton(theme, icon: Icons.mic, label: 'Interview Prep',
+                onTap: () => context.go('/interview-prep/${job.id}')),
             ),
             const SizedBox(width: 8),
             Expanded(
-              child: _proButton(
-                theme,
-                icon: Icons.analytics,
-                label: 'Resume Analyzer',
-                onTap: () => context.go('/resume-analyzer'),
-              ),
+              child: _proButton(theme, icon: Icons.attach_money, label: 'Salary Insights',
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => SalaryInsightsScreen(job: job)))),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              child: _proButton(theme, icon: Icons.business, label: 'Company Research',
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => CompanyResearchScreen(job: job)))),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: _proButton(theme, icon: Icons.analytics, label: 'Resume Analyzer',
+                onTap: () => context.go('/resume-analyzer')),
             ),
           ],
         ),

@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:job_board/core/theme/app_theme.dart';
 import 'package:job_board/models/application.dart';
+import 'package:job_board/models/subscription.dart';
 import 'package:job_board/providers/auth_provider.dart';
 import 'package:job_board/providers/application_provider.dart';
+import 'package:job_board/providers/subscription_provider.dart';
+import 'package:job_board/services/export_service.dart';
+import 'package:job_board/features/paywall/paywall_screen.dart';
 import 'package:job_board/widgets/empty_state.dart';
 import 'package:job_board/widgets/stat_card.dart';
 
@@ -27,7 +34,21 @@ class _ApplicationTrackerScreenState
     final stats = ref.watch(applicationStatsProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Application Tracker')),
+      appBar: AppBar(
+        title: const Text('Application Tracker'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications_active),
+            tooltip: 'Follow-up Reminders',
+            onPressed: () => context.go('/follow-ups'),
+          ),
+          IconButton(
+            icon: const Icon(Icons.download),
+            tooltip: 'Export CSV',
+            onPressed: () => _exportCsv(context),
+          ),
+        ],
+      ),
       body: applicationsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Error: $e')),
@@ -100,6 +121,36 @@ class _ApplicationTrackerScreenState
             ],
           );
         },
+      ),
+    );
+  }
+
+  void _exportCsv(BuildContext context) {
+    final tier = ref.read(currentTierProvider);
+    if (!tier.hasFeature(ProFeature.csvExport)) {
+      Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => const PaywallScreen(triggerFeature: ProFeature.csvExport),
+      ));
+      return;
+    }
+
+    final apps = ref.read(applicationsStreamProvider).value ?? [];
+    if (apps.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No applications to export.')),
+      );
+      return;
+    }
+
+    final csv = ExportService.applicationsToCsv(apps);
+    Clipboard.setData(ClipboardData(text: csv));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('CSV copied to clipboard!'),
+        action: SnackBarAction(
+          label: 'Share',
+          onPressed: () => SharePlus.instance.share(ShareParams(text: csv)),
+        ),
       ),
     );
   }
